@@ -1,0 +1,36 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:cmf="http://namespaces.zope.org/cmf"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    i18n_domain="genweb.jsonify">
+
+    <!-- Zope2 initialization -->
+    <five:registerPackage package="." initialize=".initialize" />
+
+    <!-- Include configuration for dependencies listed in setup.py -->
+    <includeDependencies package="." />
+
+    <!-- The actual magic view -->
+    <browser:page
+        for="*"
+        name="get_item"
+        class=".jsonify.GetItem"
+        permission="zope2.ViewManagementScreens"
+        />
+
+    <browser:page
+        for="*"
+        name="get_children"
+        class=".jsonify.GetChildren"
+        permission="zope2.ViewManagementScreens"
+        />
+
+    <browser:page
+        for="*"
+        name="get_catalog_results"
+        class=".jsonify.GetCatalogResults"
+        permission="zope2.ViewManagementScreens"
+        />
+
+</configure>
