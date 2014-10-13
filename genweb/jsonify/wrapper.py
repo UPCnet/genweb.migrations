@@ -123,6 +123,13 @@ class Wrapper(dict):
             for key, val in self.context.__ac_local_roles__.items():
                 if key is not None:
                     self['_local_roles'][key] = val
+        try:
+            local_roles = self.context.get_local_roles()
+            for key, val in local_roles:
+                if key is not None:
+                    self['_local_roles'][key] = val
+        except:
+            pass
 
     def get_userdefined_roles(self):
         """ User defined roles for object (via sharing UI)

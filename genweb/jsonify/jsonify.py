@@ -50,7 +50,7 @@ class GetItem(BrowserView):
                     return ('ERROR: Unknown error serializing object: %s' %
                         str(error))
 
-        self.response.setHeader('Content-Type', 'application/json')
+        self.request.response.setHeader('Content-Type', 'application/json')
         return JSON
 
 
@@ -69,7 +69,7 @@ class GetChildren(BrowserView):
             if not isinstance(children, list):
                 children = [item for item in children]
 
-        self.response.setHeader('Content-Type', 'application/json')
+        self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(children)
 
 
@@ -88,5 +88,5 @@ class GetCatalogResults(BrowserView):
         item_paths = [item.getPath() for item
                       in self.context.unrestrictedSearchResults(**query)]
 
-        self.response.setHeader('Content-Type', 'application/json')
+        self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(item_paths)

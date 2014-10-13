@@ -2,7 +2,7 @@
 genweb.jsonify
 ====================
 
-JSON export
+JSON export for Plone content
 
 How it works
 ============
