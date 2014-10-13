@@ -415,51 +415,52 @@ class Wrapper(dict):
                 except ValueError:
                     max_filesize = 2000
 
-                if value.get_size() and value.get_size() < max_filesize:
-                    if type(value) is not str:
-                        if type(value.data) is str:
-                            value = base64.b64encode(value.data)
-                        else:
-                            data = value.data
-                            value = ''
-                            while data is not None:
-                                value += data.data
-                                data = data.next
-                            value = base64.b64encode(value)
+                if value:
+                    if value.get_size() and value.get_size() < max_filesize:
+                        if type(value) is not str:
+                            if type(value.data) is str:
+                                value = base64.b64encode(value.data)
+                            else:
+                                data = value.data
+                                value = ''
+                                while data is not None:
+                                    value += data.data
+                                    data = data.next
+                                value = base64.b64encode(value)
 
-                    self[fieldname] = {'data': value}
-                else:
-                    data_uri = '{0}/at_download/{1}'.format(self.context.absolute_url(), fieldname.replace('_datafield_', ''))
-                    self[fieldname] = {'data_uri': data_uri}
+                        self[fieldname] = {'data': value}
+                    else:
+                        data_uri = '{0}/at_download/{1}'.format(self.context.absolute_url(), fieldname.replace('_datafield_', ''))
+                        self[fieldname] = {'data_uri': data_uri}
 
-                size = value2.get_size()
-                try:
-                    fname = field.getFilename(self.context)
-                except AttributeError:
-                    fname = value2.getFilename()
+                    size = value2.get_size()
+                    try:
+                        fname = field.getFilename(self.context)
+                    except AttributeError:
+                        fname = value2.getFilename()
 
-                try:
-                    fname = self.decode(fname)
-                except AttributeError:
-                    # maybe an int?
-                    fname = unicode(fname)
-                except Exception, e:
-                    raise Exception(
-                        'problems with %s: %s' % (
-                            self.context.absolute_url(), str(e)
+                    try:
+                        fname = self.decode(fname)
+                    except AttributeError:
+                        # maybe an int?
+                        fname = unicode(fname)
+                    except Exception, e:
+                        raise Exception(
+                            'problems with %s: %s' % (
+                                self.context.absolute_url(), str(e)
+                            )
                         )
-                    )
 
-                try:
-                    ctype = field.getContentType(self.context)
-                except AttributeError:
-                    ctype = value2.getContentType()
+                    try:
+                        ctype = field.getContentType(self.context)
+                    except AttributeError:
+                        ctype = value2.getContentType()
 
-                self[fieldname].update({
-                    'size': size,
-                    'filename': fname or '',
-                    'content_type': ctype
-                })
+                    self[fieldname].update({
+                        'size': size,
+                        'filename': fname or '',
+                        'content_type': ctype
+                    })
 
             elif type_ in ['ReferenceField']:
                 pass
