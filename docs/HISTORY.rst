@@ -1,11 +1,10 @@
 Changelog
 =========
 
-1.1 (unreleased)
+1.1 (2014-10-16)
 ----------------
 
-- Nothing changed yet.
-
+* Add local role block inheritance [Victor Fernandez de Alba]
 
 1.0 (2014-10-13)
 ----------------
