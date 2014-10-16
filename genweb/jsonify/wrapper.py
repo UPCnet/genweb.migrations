@@ -507,3 +507,10 @@ class Wrapper(dict):
         self['_translationOf'] = '/'.join(self.context.getCanonical(
                                  ).getPhysicalPath())[len(self.portal_path):]
         self['_canonicalTranslation'] = self.context.isCanonical()
+
+    def get_local_roles_inherited(self):
+        """ Get if the local roles inheritance is enabled or not."""
+        if getattr(self._context, '__ac_local_roles_block__', False):
+            self['_local_roles_block'] = True
+        else:
+            self['_local_roles_block'] = False
