@@ -26,7 +26,7 @@ class CatalogSourceSection(object):
         self.remote_url = self.get_option('remote-url',
                                           'http://localhost:8080')
         self.remote_username = self.get_option('remote-username', 'admin')
-        self.remote_password = self.get_option('remote-username', 'admin')
+        self.remote_password = self.get_option('remote-password', 'admin')
 
         catalog_path = self.get_option('catalog-path', '/Plone/portal_catalog')
         self.site_path_length = len('/'.join(catalog_path.split('/')[:-1]))
@@ -37,6 +37,7 @@ class CatalogSourceSection(object):
 
         self.remote_skip_paths = self.get_option('remote-skip-paths',
                                                  '').split()
+        self.remote_root = self.get_option('remote-root', '')
 
         # Forge request
         self.payload = {'catalog_query': catalog_query}
@@ -67,7 +68,7 @@ class CatalogSourceSection(object):
         for path in self.item_paths:
             skip = False
             for skip_path in self.remote_skip_paths:
-                if path.startswith(skip_path):
+                if path.startswith(self.remote_root + skip_path):
                     skip = True
             if not skip:
                 item = self.get_remote_item(path)
