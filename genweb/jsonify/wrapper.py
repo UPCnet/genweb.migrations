@@ -360,7 +360,7 @@ class Wrapper(dict):
                 'IntegerField', 'TextField', 'SimpleDataGridField',
                 'FloatField', 'FixedPointField', 'TALESString',
                 'TALESLines', 'ZPTField', 'DataGridField', 'EmailField',
-                'QueryField',
+                'QueryField', '_StringExtensionField'
             ]
 
             if type_ in fieldnames:
