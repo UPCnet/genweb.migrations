@@ -30,6 +30,7 @@ class LoggerSection(object):
         start_time = time()
         count = 0
         problematic = 0
+        problematic2 = 0
         for item in self.previous:
             # source sections add store path of current generated item in annotation
             # it gives posibility to monitor what items go through all pipeline
