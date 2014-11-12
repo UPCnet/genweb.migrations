@@ -1,11 +1,10 @@
 Changelog
 =========
 
-1.2 (unreleased)
+1.2 (2014-11-12)
 ----------------
 
-- Nothing changed yet.
-
+* Update new wrapper [Victor Fernandez de Alba]
 
 1.1 (2014-10-16)
 ----------------
