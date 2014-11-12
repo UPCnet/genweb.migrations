@@ -430,7 +430,7 @@ class Wrapper(dict):
 
                         self[fieldname] = {'data': value}
                     else:
-                        data_uri = '{0}/at_download/{1}'.format(self.context.absolute_url(), fieldname.replace('_datafield_', ''))
+                        data_uri = '%s/at_download/%s' % (self.context.absolute_url(), fieldname.replace('_datafield_', ''))
                         self[fieldname] = {'data_uri': data_uri}
 
                     size = value2.get_size()
