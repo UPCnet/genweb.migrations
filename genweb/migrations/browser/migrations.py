@@ -23,7 +23,7 @@ class intranetUPCnet(grok.View):
         portal = api.portal.get()
         transmogrifier = Transmogrifier(portal)
         transmogrifier('intranetupcnet')
-        return ''
+        return 'Done'
 
 
 class MigrationTest(grok.View):
