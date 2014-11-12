@@ -47,6 +47,12 @@
         />
 
     <transmogrifier:registerConfig
+        name="intranetupcnet"
+        title="Migration configuration for querying the catalog of a Plone site"
+        configuration="intranetupcnet.cfg"
+        />
+
+    <transmogrifier:registerConfig
         name="genweb.migrations.test"
         title="Migration configuration for querying the catalog of a Plone site"
         configuration="test.cfg"

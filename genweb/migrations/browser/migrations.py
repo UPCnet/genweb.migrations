@@ -15,6 +15,17 @@ class PloneorgMigrationMain(grok.View):
         transmogrifier('plone.org.main')
 
 
+class intranetUPCnet(grok.View):
+    grok.context(IPloneSiteRoot)
+    grok.name('intranet_migration')
+
+    def render(self):
+        portal = api.portal.get()
+        transmogrifier = Transmogrifier(portal)
+        transmogrifier('intranetupcnet')
+        return ''
+
+
 class MigrationTest(grok.View):
     grok.context(IPloneSiteRoot)
     grok.name('migration_test')
