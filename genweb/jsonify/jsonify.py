@@ -11,7 +11,7 @@ try:
 except:
     import json
 
-from .wrapper import Wrapper
+from genweb.jsonify.wrapper import Wrapper
 
 
 def _clean_dict(dct, error):
