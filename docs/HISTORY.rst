@@ -1,11 +1,10 @@
 Changelog
 =========
 
-1.3 (unreleased)
+1.3 (2014-11-12)
 ----------------
 
-- Nothing changed yet.
-
+* Fix for make it work on Python 2.4 [Victor Fernandez de Alba]
 
 1.2 (2014-11-12)
 ----------------
