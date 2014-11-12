@@ -6,8 +6,12 @@ from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.jsonmigrator import logger
+from zope.annotation.interfaces import IAnnotations
 
 import requests
+
+VALIDATIONKEY = 'genweb.migrations.logger'
+ERROREDKEY = 'genweb.migrations.errors'
 
 
 class CatalogSourceSection(object):
@@ -38,6 +42,11 @@ class CatalogSourceSection(object):
         self.remote_skip_paths = self.get_option('remote-skip-paths',
                                                  '').split()
         self.remote_root = self.get_option('remote-root', '')
+
+        # next is for communication with 'logger' section
+        self.anno = IAnnotations(transmogrifier)
+        self.storage = self.anno.setdefault(VALIDATIONKEY, [])
+        self.errored = self.anno.setdefault(ERROREDKEY, [])
 
         # Forge request
         self.payload = {'catalog_query': catalog_query}
@@ -71,6 +80,7 @@ class CatalogSourceSection(object):
                 if path.startswith(self.remote_root + skip_path):
                     skip = True
             if not skip:
+                self.storage.append(item[self.pathkey])
                 item = self.get_remote_item(path)
                 if item:
                     item['_path'] = item['_path'][self.site_path_length:]
@@ -85,12 +95,14 @@ class CatalogSourceSection(object):
         if resp.status_code == 200:
             item_json = resp.text
         else:
-            logger.error("Failed reading item from %s. %s" % (item_url, resp.status_code))
+            logger.error("Failed reading item from %s. %s" % (path, resp.status_code))
+            self.errored.append(path)
             return None
         try:
             item = simplejson.loads(item_json)
         except simplejson.JSONDecodeError:
             logger.error("Could not decode item from %s." % item_url)
             logger.error("Response is %s." % item_json)
+            self.errored.append(path)
             return None
         return item

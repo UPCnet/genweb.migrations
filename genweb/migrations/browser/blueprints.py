@@ -272,4 +272,8 @@ class LeftOvers(object):
             if item.get('excludeFromNav', False):
                 obj.exclude_from_nav = item.get('excludeFromNav')
 
+            # Open in new window
+            if item.get('obrirfinestra', False):
+                obj.open_link_in_new_window = item.get('obrirfinestra')
+
             yield item

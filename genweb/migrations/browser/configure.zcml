@@ -35,6 +35,11 @@
         name="genweb.migrations.leftovers"
         />
 
+    <utility
+        component=".logger.LoggerSection"
+        name="genweb.migrations.logger"
+        />
+
     <transmogrifier:registerConfig
         name="plone.org.main"
         title="Migration configuration for querying the catalog of a Plone site"
@@ -51,6 +56,18 @@
         name="genweb.migrations.dxexport.test"
         title="Export DX content with transmogrifier.dexterity"
         configuration="test_dxexport.cfg"
+        />
+
+    <transmogrifier:registerConfig
+        name="genweb.migrations.dashboard"
+        title="Dashboard config"
+        configuration="dashboard.cfg"
+        />
+
+    <transmogrifier:registerConfig
+        name="genweb.migrations.common"
+        title="Dashboard config"
+        configuration="common.cfg"
         />
 
 </configure>
