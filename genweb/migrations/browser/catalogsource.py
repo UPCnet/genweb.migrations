@@ -80,7 +80,7 @@ class CatalogSourceSection(object):
                 if path.startswith(self.remote_root + skip_path):
                     skip = True
             if not skip:
-                self.storage.append(item[self.pathkey])
+                self.storage.append(path)
                 item = self.get_remote_item(path)
                 if item:
                     item['_path'] = item['_path'][self.site_path_length:]
