@@ -58,7 +58,7 @@ class LoggerSection(object):
         if self.errored:
             problematic2 = len(self.errored)
             logging.getLogger(self.logger).warning('\nNext objects errored somewhere in the pipeline:\n%s' % \
-                '\n'.join(['\t'+i for i in self.storage]))
+                '\n'.join(['\t'+i for i in self.errored]))
         # delete validation data from annotations
         anno = IAnnotations(self.transmogrifier)
         if VALIDATIONKEY in anno:
@@ -72,6 +72,6 @@ class LoggerSection(object):
         stats = "\nPipeline processing time: %02d:%02d:%02d\n" % (hours, minutes, seconds)
         stats += "\t%4d items were generated in source sections\n" % (count + problematic)
         stats += "\t%4d went through full pipeline\n" % count
-        stats += "\t%4d were discarded in some section" % problematic
+        stats += "\t%4d were discarded in some section\n" % problematic
         stats += "\t%4d were errored in some section" % problematic2
         logging.getLogger(self.logger).info(stats)

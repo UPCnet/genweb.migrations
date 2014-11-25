@@ -55,6 +55,7 @@ class CatalogSourceSection(object):
         resp = requests.get('{}{}/get_catalog_results'.format(self.remote_url, catalog_path), params=self.payload, auth=(self.remote_username, self.remote_password))
 
         self.item_paths = sorted(simplejson.loads(resp.text))
+        print self.item_paths
 
     def get_option(self, name, default):
         """Get an option from the request if available and fallback to the
@@ -80,7 +81,7 @@ class CatalogSourceSection(object):
                 if path.startswith(self.remote_root + skip_path):
                     skip = True
             if not skip:
-                self.storage.append(path)
+                self.storage.append(path.replace(self.remote_root, ''))
                 item = self.get_remote_item(path)
                 if item:
                     item['_path'] = item['_path'][self.site_path_length:]
