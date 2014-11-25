@@ -276,4 +276,10 @@ class LeftOvers(object):
             if item.get('obrirfinestra', False):
                 obj.open_link_in_new_window = item.get('obrirfinestra')
 
+            # Layout and DefaultPage from unicode to str
+            if item.get('_layout', False):
+                item['_layout'] = str(item['_layout'])
+            if item.get('_defaultpage', False):
+                item['_defaultpage'] = str(item['_defaultpage'])
+
             yield item
