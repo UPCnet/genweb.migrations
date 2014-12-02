@@ -76,13 +76,18 @@ class NamedFileDeserializer(object):
             raise ValueError('Unable to convert to named file')
         if isinstance(filename, str):
             filename = filename.decode('utf-8')
+
         instance = self.field._type(
             data=data,
             filename=filename,
             contentType=contenttype,
             )
+
         if not disable_constraints:
-            self.field.validate(instance)
+            try:
+                self.field.validate(instance)
+            except:
+                print('@@@ WARNING @@@ File mimetype and contenttype does not match: {}'.format(item['_path']))
         return instance
 
 

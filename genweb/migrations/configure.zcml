@@ -21,6 +21,7 @@
     <grok:grok package="." />
 
     <adapter factory=".converters.NamedFileDeserializer" />
+    <adapter factory=".overrides.DatetimeDeserializer" />
 
     <include package="plone.resource" file="meta.zcml"/>
     <plone:static

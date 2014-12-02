@@ -45,6 +45,11 @@
         name="genweb.migrations.schemaupdater"
         />
 
+    <utility
+        component=".blueprints.FieldsCorrector"
+        name="genweb.migrations.fieldscorrector"
+        />
+
     <transmogrifier:registerConfig
         name="plone.org.main"
         title="Migration configuration for querying the catalog of a Plone site"
