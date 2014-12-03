@@ -397,8 +397,10 @@ class Wrapper(dict):
                 self[unicode('_content_type_') + fieldname] = ct
 
             elif type_ in ['DateTimeField']:
-                value = str(self._get_at_field_value(field))
+                value = self._get_at_field_value(field)
                 if value:
+                    value = str(self._get_at_field_value(field))
+                    # value = self._get_at_field_value(field).ISO8601()
                     self[unicode(fieldname)] = value
 
             elif type_ in ['ImageField', 'FileField', 'AttachmentField', 'ExtensionBlobField']:
