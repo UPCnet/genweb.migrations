@@ -1,11 +1,10 @@
 Changelog
 =========
 
-1.5 (unreleased)
+1.5 (2014-12-03)
 ----------------
 
-- Nothing changed yet.
-
+* Best date handling [Victor Fernandez de Alba]
 
 1.4 (2014-11-12)
 ----------------
