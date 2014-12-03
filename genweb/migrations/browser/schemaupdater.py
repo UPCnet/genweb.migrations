@@ -15,6 +15,9 @@ from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema import getFieldsInOrder
 from transmogrify.dexterity.interfaces import IDeserializer
 
+from zope.annotation.interfaces import IAnnotations
+from genweb.migrations.browser.catalogsource import ERROREDKEY
+
 
 _marker = object()
 
@@ -48,6 +51,8 @@ class DexterityUpdateSection(object):
         else:
             self.log = None
 
+        self.errored = IAnnotations(transmogrifier).setdefault(ERROREDKEY, [])
+
     def __iter__(self):
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]
@@ -72,7 +77,10 @@ class DexterityUpdateSection(object):
 
             uuid = item.get('plone.uuid')
             if uuid is not None:
-                IMutableUUID(obj).set(str(uuid))
+                try:
+                    IMutableUUID(obj).set(str(uuid))
+                except:
+                    self.errored.append(item['_original_path'])
 
             files = item.setdefault(self.fileskey, {})
 
