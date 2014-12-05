@@ -339,4 +339,9 @@ class FieldsCorrector(object):
             if item.get('effectiveDate', False):
                 item['effective'] = item.get('effectiveDate')
 
+            # Intranet UPCnet specific
+            if item.get('_type', False):
+                if item.get('_type') in [u'Document File', u'PDF File', u'Presentation File', u'Spreadsheet File']:
+                    item['_type'] = u'File'
+
             yield item
