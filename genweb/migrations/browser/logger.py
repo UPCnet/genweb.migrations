@@ -10,6 +10,7 @@ from collective.transmogrifier.utils import Matcher
 
 from genweb.migrations.browser.catalogsource import VALIDATIONKEY
 from genweb.migrations.browser.catalogsource import ERROREDKEY
+from genweb.migrations.browser.catalogsource import COUNTKEY
 
 
 class LoggerSection(object):
@@ -25,6 +26,7 @@ class LoggerSection(object):
         self.logger = name
         self.storage = IAnnotations(transmogrifier).setdefault(VALIDATIONKEY, [])
         self.errored = IAnnotations(transmogrifier).setdefault(ERROREDKEY, [])
+        self.count = IAnnotations(transmogrifier).setdefault(COUNTKEY, {})
 
     def __iter__(self):
         start_time = time()
@@ -46,6 +48,10 @@ class LoggerSection(object):
             if items:
                 msg = ", ".join(items)
                 logging.getLogger(self.logger).info(msg)
+
+                self.count['remaining'] = self.count['remaining'] - 1
+                logging.getLogger(self.logger).info('Remaining {} of {}.'.format(self.count['remaining'], self.count['total']))
+
             yield item
 
         working_time = int(round(time() - start_time))

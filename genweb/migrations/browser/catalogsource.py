@@ -12,6 +12,7 @@ import requests
 
 VALIDATIONKEY = 'genweb.migrations.logger'
 ERROREDKEY = 'genweb.migrations.errors'
+COUNTKEY = 'genweb.migrations.count'
 
 
 class CatalogSourceSection(object):
@@ -47,6 +48,7 @@ class CatalogSourceSection(object):
         self.anno = IAnnotations(transmogrifier)
         self.storage = self.anno.setdefault(VALIDATIONKEY, [])
         self.errored = self.anno.setdefault(ERROREDKEY, [])
+        self.item_count = self.anno.setdefault(COUNTKEY, {})
 
         # Forge request
         self.payload = {'catalog_query': catalog_query}
@@ -55,7 +57,8 @@ class CatalogSourceSection(object):
         resp = requests.get('{}{}/get_catalog_results'.format(self.remote_url, catalog_path), params=self.payload, auth=(self.remote_username, self.remote_password))
 
         self.item_paths = sorted(simplejson.loads(resp.text))
-        print self.item_paths
+        self.item_count['total'] = len(self.item_paths)
+        self.item_count['remaining'] = len(self.item_paths)
 
     def get_option(self, name, default):
         """Get an option from the request if available and fallback to the

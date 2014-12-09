@@ -22,6 +22,10 @@ from genweb.migrations.interfaces import IDeserializer
 import base64
 import pprint
 
+import logging
+
+migration_error = logging.getLogger('migration_error')
+
 
 class PrettyPrinter(object):
     classProvides(ISectionBlueprint)
@@ -223,8 +227,10 @@ class LocalRoles(object):
                 for principal, roles in item[roleskey].items():
                     if roles:
                         obj.manage_addLocalRoles(principal, roles)
-                        obj.reindexObjectSecurity()
-
+                        try:
+                            obj.reindexObjectSecurity()
+                        except:
+                            migration_error.error('Failed to reindexObjectSecurity {}'.format(item['_path']))
             yield item
 
 
