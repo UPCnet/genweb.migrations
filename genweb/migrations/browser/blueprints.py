@@ -10,19 +10,29 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IBaseObject
 from DateTime import DateTime
 
+from collective.transmogrifier.utils import defaultMatcher
+from zope.app.container.contained import notifyContainerModified
+
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.utils import iterSchemata
 
-from zope.interface import classProvides, implements
 from zope.schema import getFieldsInOrder
-from collective.transmogrifier.interfaces import ISectionBlueprint, ISection
-from Products.Archetypes.interfaces import IBaseObject
 from genweb.migrations.interfaces import IDeserializer
 
 import base64
 import pprint
 
 import logging
+
+import pkg_resources
+
+try:
+    pkg_resources.get_distribution('plone.app.multilingual')
+except pkg_resources.DistributionNotFound:
+    HAS_PAM = False
+else:
+    from plone.app.multilingual.interfaces import ITranslationManager
+    HAS_PAM = True
 
 migration_error = logging.getLogger('migration_error')
 
@@ -176,6 +186,17 @@ class WorkflowHistory(object):
                         if 'time' in item_tmp[workflowhistorykey][workflow][k]:
                             item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(
                                     item_tmp[workflowhistorykey][workflow][k]['time'])
+
+                    # Normalize workflow
+                    if workflow == u'genweb_review':
+                        item_tmp[workflowhistorykey]['genweb_simple'] = item_tmp[workflowhistorykey]['genweb_review']
+                        del item_tmp[workflowhistorykey]['genweb_review']
+
+                        for k, workflow2 in enumerate(item_tmp[workflowhistorykey]['genweb_simple']):
+                            if 'review_state' in item_tmp[workflowhistorykey]['genweb_simple'][k]:
+                                if item_tmp[workflowhistorykey]['genweb_simple'][k]['review_state'] == u'esborrany':
+                                    item_tmp[workflowhistorykey]['genweb_simple'][k]['review_state'] = u'visible'
+
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
 
                 # update security
@@ -288,6 +309,11 @@ class LeftOvers(object):
             if item.get('_defaultpage', False):
                 item['_defaultpage'] = str(item['_defaultpage'])
 
+            # Local roles inherit
+            if item.get('_local_roles_block', False):
+                if item['_local_roles_block']:
+                    obj.__ac_local_roles_block__ = True
+
             yield item
 
 
@@ -351,3 +377,132 @@ class FieldsCorrector(object):
                     item['_type'] = u'File'
 
             yield item
+
+
+class PAMLinker(object):
+    """ Links provided translations using plone.app.multilingual. It assumes
+        that the object to be linked objects are already in place, so this
+        section is intended to be run on second pass migration phase.
+    """
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.transmogrifier = transmogrifier
+        self.name = name
+        self.options = options
+        self.previous = previous
+        self.context = transmogrifier.context
+
+        if 'path-key' in options:
+            pathkeys = options['path-key'].splitlines()
+        else:
+            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+        self.pathkey = Matcher(*pathkeys)
+
+    def __iter__(self):
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+
+            if HAS_PAM:
+                if not pathkey:
+                    # not enough info
+                    yield item; continue
+
+                obj = self.context.unrestrictedTraverse(str(item[pathkey]).lstrip('/'), None)
+
+                if obj is None:
+                    # path doesn't exist
+                    yield item; continue
+
+                if item.get('_translations', False):
+                    lang_info = []
+                    for lang in item['_translations']:
+                        target_obj = self.context.unrestrictedTraverse(str('{}{}'.format(lang, item['_translations'][lang])).lstrip('/'), None)
+                        if target_obj and (IBaseObject.providedBy(target_obj) or IDexterityContent.providedBy(target_obj)):
+                            lang_info.append((target_obj, lang),)
+                    self.link_translations(lang_info)
+
+            yield item
+
+    def link_translations(self, items):
+        """
+            Links the translations with the declared items with the form:
+            [(obj1, lang1), (obj2, lang2), ...] assuming that the first element
+            is the 'canonical' (in PAM there is no such thing).
+        """
+        # Grab the first item object and get its canonical handler
+        canonical = ITranslationManager(items[0][0])
+
+        for obj, language in items:
+            if not canonical.has_translation(language):
+                canonical.register_translation(language, obj)
+
+
+class OrderSection(object):
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.every = int(options.get('every', 1000))
+        self.previous = previous
+        self.context = transmogrifier.context
+        self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
+        self.poskey = defaultMatcher(options, 'pos-key', name, 'gopip')
+        # Position of items without a position value
+        self.default_pos = int(options.get('default-pos', 1000000))
+
+    def __iter__(self):
+        # Store positions in a mapping containing an id to position mapping for
+        # each parent path {parent_path: {item_id: item_pos}}.
+        positions_mapping = {}
+        for item in self.previous:
+            keys = item.keys()
+            pathkey = self.pathkey(*keys)[0]
+            poskey = self.poskey(*keys)[0]
+            if not (pathkey and poskey):
+                yield item
+                continue
+
+            item_id = item[pathkey].split('/')[-1]
+            parent_path = '/'.join(item[pathkey].split('/')[:-1])
+            if parent_path not in positions_mapping:
+                positions_mapping[parent_path] = {}
+            positions_mapping[parent_path][item_id] = item[poskey]
+
+            yield item
+
+        # Set positions on every parent
+        for path, positions in positions_mapping.items():
+
+            # Normalize positions
+            ordered_keys = sorted(positions.keys(), key=lambda x: positions[x])
+            normalized_positions = {}
+            for pos, key in enumerate(ordered_keys):
+                normalized_positions[key] = pos
+
+            # TODO: After the new collective.transmogrifier release (>1.4), the
+            # utils.py provides a traverse method.
+            from collective.transmogrifier.utils import traverse
+            parent = traverse(self.context, path)
+            #parent = self.context.unrestrictedTraverse(path.lstrip('/'))
+            if not parent:
+                continue
+
+            parent_base = aq_base(parent)
+
+            if hasattr(parent_base, 'getOrdering'):
+                ordering = parent.getOrdering()
+                # Only DefaultOrdering of p.folder is supported
+                if (not hasattr(ordering, '_order')
+                    and not hasattr(ordering, '_pos')):
+                    continue
+                order = ordering._order()
+                pos = ordering._pos()
+                order.sort(key=lambda x: normalized_positions.get(x,
+                           pos.get(x, self.default_pos)))
+                for i, id_ in enumerate(order):
+                    pos[id_] = i
+
+                notifyContainerModified(parent)

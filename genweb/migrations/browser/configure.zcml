@@ -50,6 +50,16 @@
         name="genweb.migrations.fieldscorrector"
         />
 
+    <utility
+        component=".blueprints.PAMLinker"
+        name="genweb.migrations.pamlinker"
+        />
+
+    <utility
+        component=".blueprints.OrderSection"
+        name="genweb.migrations.order"
+        />
+
     <transmogrifier:registerConfig
         name="plone.org.main"
         title="Migration configuration for querying the catalog of a Plone site"
