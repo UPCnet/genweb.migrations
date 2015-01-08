@@ -1,11 +1,10 @@
 Changelog
 =========
 
-1.6 (unreleased)
+1.6 (2015-01-08)
 ----------------
 
-- Nothing changed yet.
-
+* Enable export of translations (LinguaPlone) [Victor Fernandez de Alba]
 
 1.5 (2014-12-03)
 ----------------
