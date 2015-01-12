@@ -14,6 +14,7 @@ from zope.interface import implementer
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema import getFieldsInOrder
 from transmogrify.dexterity.interfaces import IDeserializer
+from plone.dexterity.interfaces import IDexterityContent
 
 from zope.annotation.interfaces import IAnnotations
 from genweb.migrations.browser.catalogsource import ERROREDKEY
@@ -75,65 +76,66 @@ class DexterityUpdateSection(object):
                 yield item
                 continue
 
-            uuid = item.get('plone.uuid')
-            if uuid is not None:
-                try:
-                    IMutableUUID(obj).set(str(uuid))
-                except:
-                    self.errored.append(item['_original_path'])
+            if IDexterityContent.providedBy(obj):
+                uuid = item.get('plone.uuid')
+                if uuid is not None:
+                    try:
+                        IMutableUUID(obj).set(str(uuid))
+                    except:
+                        self.errored.append(item['_original_path'])
 
-            files = item.setdefault(self.fileskey, {})
+                files = item.setdefault(self.fileskey, {})
 
-            # For all fields in the schema, update in roughly the same way
-            # z3c.form.widget.py would
-            for schemata in iterSchemata(obj):
-                for name, field in getFieldsInOrder(schemata):
-                    if name == 'id':
-                        continue
-                    if field.readonly:
-                        continue
-                    #setting value from the blueprint cue
-                    value = item.get(name, _marker)
-                    if value is not _marker:
-                        # Value was given in pipeline, so set it
-                        deserializer = IDeserializer(field)
-                        value = deserializer(
-                            value,
-                            files,
-                            item,
-                            self.disable_constraints,
-                            logger=self.log,
-                        )
-                        field.set(field.interface(obj), value)
-                        continue
+                # For all fields in the schema, update in roughly the same way
+                # z3c.form.widget.py would
+                for schemata in iterSchemata(obj):
+                    for name, field in getFieldsInOrder(schemata):
+                        if name == 'id':
+                            continue
+                        if field.readonly:
+                            continue
+                        #setting value from the blueprint cue
+                        value = item.get(name, _marker)
+                        if value is not _marker:
+                            # Value was given in pipeline, so set it
+                            deserializer = IDeserializer(field)
+                            value = deserializer(
+                                value,
+                                files,
+                                item,
+                                self.disable_constraints,
+                                logger=self.log,
+                            )
+                            field.set(field.interface(obj), value)
+                            continue
 
-                    # Get the widget's current value, if it has one then leave
-                    # it alone
-                    value = getMultiAdapter(
-                        (obj, field),
-                        interfaces.IDataManager).query()
-                    if not(value is field.missing_value
-                           or value is interfaces.NO_VALUE):
-                        continue
+                        # Get the widget's current value, if it has one then leave
+                        # it alone
+                        value = getMultiAdapter(
+                            (obj, field),
+                            interfaces.IDataManager).query()
+                        if not(value is field.missing_value
+                               or value is interfaces.NO_VALUE):
+                            continue
 
-                    # Finally, set a default value if nothing is set so far
-                    default = queryMultiAdapter((
-                        obj,
-                        obj.REQUEST,  # request
-                        None,  # form
-                        field,
-                        None,  # Widget
-                    ), interfaces.IValue, name='default')
-                    if default is not None:
-                        default = default.get()
-                    if default is None:
-                        default = getattr(field, 'default', None)
-                    if default is None:
-                        try:
-                            default = field.missing_value
-                        except AttributeError:
-                            pass
-                    field.set(field.interface(obj), default)
+                        # Finally, set a default value if nothing is set so far
+                        default = queryMultiAdapter((
+                            obj,
+                            obj.REQUEST,  # request
+                            None,  # form
+                            field,
+                            None,  # Widget
+                        ), interfaces.IValue, name='default')
+                        if default is not None:
+                            default = default.get()
+                        if default is None:
+                            default = getattr(field, 'default', None)
+                        if default is None:
+                            try:
+                                default = field.missing_value
+                            except AttributeError:
+                                pass
+                        field.set(field.interface(obj), default)
 
-            notify(ObjectModifiedEvent(obj))
+                notify(ObjectModifiedEvent(obj))
             yield item
