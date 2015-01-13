@@ -1,5 +1,6 @@
 from Acquisition import aq_base
 from AccessControl.interfaces import IRoleManager
+from copy import deepcopy
 from zope.interface import implements
 from zope.interface import classProvides
 from collective.transmogrifier.interfaces import ISectionBlueprint
@@ -178,24 +179,26 @@ class WorkflowHistory(object):
                 yield item; continue
 
             if IBaseObject.providedBy(obj) or IDexterityContent.providedBy(obj):
-                item_tmp = item
+                item_tmp = deepcopy(item)
+
+                wf_hist_temp = deepcopy(item[workflowhistorykey])
+
+                for workflow in wf_hist_temp:
+                    # Normalize workflow
+                    if workflow == u'genweb_review':
+                        for k, workflow2 in enumerate(item_tmp[workflowhistorykey]['genweb_review']):
+                            if 'review_state' in item_tmp[workflowhistorykey]['genweb_review'][k]:
+                                if item_tmp[workflowhistorykey]['genweb_review'][k]['review_state'] == u'esborrany':
+                                    item_tmp[workflowhistorykey]['genweb_review'][k]['review_state'] = u'visible'
+
+                        item_tmp[workflowhistorykey]['genweb_simple'] = item_tmp[workflowhistorykey]['genweb_review']
+                        del item_tmp[workflowhistorykey]['genweb_review']
 
                 # get back datetime stamp and set the workflow history
                 for workflow in item_tmp[workflowhistorykey]:
                     for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):
                         if 'time' in item_tmp[workflowhistorykey][workflow][k]:
-                            item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(
-                                    item_tmp[workflowhistorykey][workflow][k]['time'])
-
-                    # Normalize workflow
-                    if workflow == u'genweb_review':
-                        item_tmp[workflowhistorykey]['genweb_simple'] = item_tmp[workflowhistorykey]['genweb_review']
-                        del item_tmp[workflowhistorykey]['genweb_review']
-
-                        for k, workflow2 in enumerate(item_tmp[workflowhistorykey]['genweb_simple']):
-                            if 'review_state' in item_tmp[workflowhistorykey]['genweb_simple'][k]:
-                                if item_tmp[workflowhistorykey]['genweb_simple'][k]['review_state'] == u'esborrany':
-                                    item_tmp[workflowhistorykey]['genweb_simple'][k]['review_state'] = u'visible'
+                            item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(item_tmp[workflowhistorykey][workflow][k]['time'])
 
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
 
