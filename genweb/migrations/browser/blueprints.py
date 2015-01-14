@@ -425,7 +425,10 @@ class PAMLinker(object):
                         target_obj = self.context.unrestrictedTraverse(str('{}{}'.format(lang, item['_translations'][lang])).lstrip('/'), None)
                         if target_obj and (IBaseObject.providedBy(target_obj) or IDexterityContent.providedBy(target_obj)):
                             lang_info.append((target_obj, lang),)
-                    self.link_translations(lang_info)
+                    try:
+                        self.link_translations(lang_info)
+                    except IndexError:
+                        continue
 
             yield item
 
@@ -437,6 +440,7 @@ class PAMLinker(object):
         """
         # Grab the first item object and get its canonical handler
         canonical = ITranslationManager(items[0][0])
+
 
         for obj, language in items:
             if not canonical.has_translation(language):
