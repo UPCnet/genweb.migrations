@@ -1,11 +1,10 @@
 Changelog
 =========
 
-1.7 (unreleased)
+1.7 (2015-02-16)
 ----------------
 
-- Nothing changed yet.
-
+* Update Collage use case migration [Victor Fernandez de Alba]
 
 1.6 (2015-01-08)
 ----------------
