@@ -10,7 +10,7 @@ from collective.transmogrifier.utils import defaultKeys
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IBaseObject
 from DateTime import DateTime
-
+from plone.uuid.interfaces import IUUID
 from collective.transmogrifier.utils import defaultMatcher
 from zope.app.container.contained import notifyContainerModified
 
@@ -317,6 +317,14 @@ class LeftOvers(object):
                 if item['_local_roles_block']:
                     obj.__ac_local_roles_block__ = True
 
+            # Rebuild CollageAlias AT reference
+            if item.get('_type', False):
+                if item['_type'] == u'CollageAlias':
+                    if item['_atrefs'].get('Collage_aliasedItem', False):
+                        ref_path = item['language'] + item['_atrefs']['Collage_aliasedItem'][0][item['_site_path_length']:]
+                        ref_obj = self.context.unrestrictedTraverse(str(ref_path))
+                        ref_uuid = IUUID(ref_obj)
+                        obj.set_target(ref_uuid)
             yield item
 
 

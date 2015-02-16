@@ -7,6 +7,8 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.jsonmigrator import logger
 from zope.annotation.interfaces import IAnnotations
+from Products.Collage.utilities import generateNewId
+
 
 import requests
 
@@ -89,7 +91,46 @@ class CatalogSourceSection(object):
                 if item:
                     item['_path'] = item['_path'][self.site_path_length:]
                     item['_auth_info'] = (self.remote_username, self.remote_password)
-                    yield item
+                    item['_site_path_length'] = self.site_path_length
+
+                    # Collage sub-items fetcher
+                    ptype = item.get('_type', False)
+                    if ptype == 'Collage':
+                        collageRows = []
+                        collageColumns = []
+                        collageAlias = []
+
+                        for key in item.keys():
+                            if key.startswith('_rowCollage'):
+                                collageRows.append(item[key])
+                                del item[key]
+                            if key.startswith('_colCollage'):
+                                collageColumns.append(item[key])
+                                del item[key]
+                            if key.startswith('_aliasCollage'):
+                                collageAlias.append(item[key])
+                                del item[key]
+                        # Yield the main Collage
+                        yield item
+
+                        # Yield the Collage components, in order (because the parent should exist before!)
+                        for component in collageRows:
+                            component['_path'] = component['_path'][self.site_path_length:]
+                            component['_auth_info'] = (self.remote_username, self.remote_password)
+                            component['_site_path_length'] = self.site_path_length
+                            yield component
+                        for component in collageColumns:
+                            component['_path'] = component['_path'][self.site_path_length:]
+                            component['_auth_info'] = (self.remote_username, self.remote_password)
+                            component['_site_path_length'] = self.site_path_length
+                            yield component
+                        for component in collageAlias:
+                            component['_path'] = component['_path'][self.site_path_length:]
+                            component['_auth_info'] = (self.remote_username, self.remote_password)
+                            component['_site_path_length'] = self.site_path_length
+                            yield component
+                    else:
+                        yield item
 
     def get_remote_item(self, path):
         item_url = '%s%s/get_item' % (self.remote_url, urllib.quote(path))
