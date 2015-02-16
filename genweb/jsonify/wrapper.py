@@ -1,6 +1,7 @@
 import os
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
+from zope.annotation.interfaces import IAnnotations
 
 
 class Wrapper(dict):
@@ -524,3 +525,9 @@ class Wrapper(dict):
             self['_local_roles_block'] = True
         else:
             self['_local_roles_block'] = False
+
+    def get_collage_additional_info(self):
+        """ Get the layout info of a Collage object (if any). """
+        if self.context.portal_type == 'Collage':
+            if 'Collage' in IAnnotations(self.context):
+                self['_collage_info'] = IAnnotations(self.context)['Collage']
