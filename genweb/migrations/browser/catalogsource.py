@@ -93,9 +93,11 @@ class CatalogSourceSection(object):
                     item['_auth_info'] = (self.remote_username, self.remote_password)
                     item['_site_path_length'] = self.site_path_length
 
-                    new_text = self.replaceCss(item)
-                    item['text'] = new_text
-                    import ipdb;ipdb.set_trace()
+                    # Update css class
+                    text_content = ptype = item.get('text', '')
+                    if text_content != '':
+                        new_text = self.updateCss(text_content)
+                        item['text'] = new_text
 
                     # Collage sub-items fetcher
                     ptype = item.get('_type', False)
@@ -156,8 +158,7 @@ class CatalogSourceSection(object):
             return None
         return item
 
-    def replaceCss(self,item):
-        text = item['text']
+    def updateCss(self,text):
         text = text.replace("colSupContenidor","row")
         text = text.replace("colSupDreta","span4 pull-right")
         text = text.replace("colSupEsq","span8")
