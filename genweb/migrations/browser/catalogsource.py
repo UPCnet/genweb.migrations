@@ -168,4 +168,6 @@ class CatalogSourceSection(object):
         text = text.replace("align_left","image-left")
         text = text.replace("align_right","image-right")
         text = text.replace("invisible","")
+        text = text.replace("cella w1:2 p0","span8")
+        text = text.replace("p2:3 w1:3","span4")
         return text
