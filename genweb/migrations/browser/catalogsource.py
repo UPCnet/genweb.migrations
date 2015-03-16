@@ -93,11 +93,11 @@ class CatalogSourceSection(object):
                     item['_auth_info'] = (self.remote_username, self.remote_password)
                     item['_site_path_length'] = self.site_path_length
 
-                    # Update css class
+                    # Update css class to GW4
                     text_content = ptype = item.get('text', '')
                     if text_content != '':
-                        new_text = self.updateCss(text_content)
-                        item['text'] = new_text
+                        text_updated = self.updateCss(text_content)
+                        item['text'] = text_updated
 
                     # Collage sub-items fetcher
                     ptype = item.get('_type', False)

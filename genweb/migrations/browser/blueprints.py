@@ -81,7 +81,6 @@ class DataFields(object):
 
     def __iter__(self):
         for item in self.previous:
-
             # not enough info
             if '_path' not in item:
                 yield item
@@ -321,10 +320,13 @@ class LeftOvers(object):
             if item.get('_type', False):
                 if item['_type'] == u'CollageAlias':
                     if item['_atrefs'].get('Collage_aliasedItem', False):
-                        ref_path = item['language'] + item['_atrefs']['Collage_aliasedItem'][0][item['_site_path_length']:]
-                        ref_obj = self.context.unrestrictedTraverse(str(ref_path))
-                        ref_uuid = IUUID(ref_obj)
-                        obj.set_target(ref_uuid)
+                        try:
+                            ref_path = item['language'] + item['_atrefs']['Collage_aliasedItem'][0][item['_site_path_length']:]
+                            ref_obj = self.context.unrestrictedTraverse(str(ref_path))
+                            ref_uuid = IUUID(ref_obj)
+                            obj.set_target(ref_uuid)
+                        except:
+                            pass
             yield item
 
 
@@ -476,6 +478,7 @@ class OrderSection(object):
             keys = item.keys()
             pathkey = self.pathkey(*keys)[0]
             poskey = self.poskey(*keys)[0]
+
             if not (pathkey and poskey):
                 yield item
                 continue
