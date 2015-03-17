@@ -101,7 +101,7 @@ class CatalogSourceSection(object):
 
                     ptype = item.get('_type', False)
                     # Banners create correct attributes
-                    if ptype == 'Banner':
+                    if ptype == 'Banner' or ptype == 'Logos_Footer':
                         item['remoteUrl'] = item['URLdesti']
                         item['open_link_in_new_window'] = item['Obrirennovafinestra']
                         imagen = item['_datafield_Imatge']
