@@ -99,8 +99,16 @@ class CatalogSourceSection(object):
                         text_updated = self.updateCss(text_content)
                         item['text'] = text_updated
 
-                    # Collage sub-items fetcher
                     ptype = item.get('_type', False)
+                    # Banners create correct attributes
+                    if ptype == 'Banner':
+                        item['remoteUrl'] = item['URLdesti']
+                        item['open_link_in_new_window'] = item['Obrirennovafinestra']
+                        imagen = item['_datafield_Imatge']
+                        # to take image
+                        item['_datafield_image'] = item['_datafield_Imatge']
+
+                    # Collage sub-items fetcher                        
                     if ptype == 'Collage':
                         collageRows = []
                         collageColumns = []
@@ -129,6 +137,7 @@ class CatalogSourceSection(object):
                             component['_path'] = component['_path'][self.site_path_length:]
                             component['_auth_info'] = (self.remote_username, self.remote_password)
                             component['_site_path_length'] = self.site_path_length
+                            import ipdb;ipdb.set_trace()
                             yield component
                         for component in collageAlias:
                             component['_path'] = component['_path'][self.site_path_length:]
