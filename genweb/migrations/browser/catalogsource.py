@@ -88,7 +88,12 @@ class CatalogSourceSection(object):
             if not skip:
                 self.storage.append(path)
                 item = self.get_remote_item(path)
+
                 if item:
+                    #pass discussions
+                    if item['_type'] == 'Discussion Item':
+                        continue
+
                     item['_path'] = item['_path'][self.site_path_length:]
                     item['_auth_info'] = (self.remote_username, self.remote_password)
                     item['_site_path_length'] = self.site_path_length
@@ -104,9 +109,11 @@ class CatalogSourceSection(object):
                     if ptype == 'Banner' or ptype == 'Logos_Footer':
                         item['remoteUrl'] = item['URLdesti']
                         item['open_link_in_new_window'] = item['Obrirennovafinestra']
-                        imagen = item['_datafield_Imatge']
-                        # to take image
-                        item['_datafield_image'] = item['_datafield_Imatge']
+
+                        if '_datafield_Imatge' in item:
+                            imagen = item['_datafield_Imatge']
+                            # to take image
+                            item['_datafield_image'] = item['_datafield_Imatge']
 
                     # Collage sub-items fetcher                        
                     if ptype == 'Collage':
@@ -137,7 +144,6 @@ class CatalogSourceSection(object):
                             component['_path'] = component['_path'][self.site_path_length:]
                             component['_auth_info'] = (self.remote_username, self.remote_password)
                             component['_site_path_length'] = self.site_path_length
-                            import ipdb;ipdb.set_trace()
                             yield component
                         for component in collageAlias:
                             component['_path'] = component['_path'][self.site_path_length:]
