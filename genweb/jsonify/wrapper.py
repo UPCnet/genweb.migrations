@@ -3,6 +3,8 @@ from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from zope.annotation.interfaces import IAnnotations
 
+import DateTime
+
 
 class Wrapper(dict):
     """ Gets the data in a format that can be used by the
@@ -400,7 +402,8 @@ class Wrapper(dict):
             elif type_ in ['DateTimeField']:
                 value = self._get_at_field_value(field)
                 if value:
-                    value = str(self._get_at_field_value(field))
+                    value = DateTime.DateTime.strftime(value, '%Y-%m-%d %H:%M')
+                    # value = str(self._get_at_field_value(field))
                     # value = self._get_at_field_value(field).ISO8601()
                     self[unicode(fieldname)] = value
 
