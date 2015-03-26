@@ -7,9 +7,6 @@ from zope.schema.interfaces import IDatetime
 from plone.app.event.base import default_timezone
 from transmogrify.dexterity.interfaces import IDeserializer
 
-import dateutil.parser
-import re
-
 
 class DatetimeDeserializer(object):
     implements(IDeserializer)
@@ -23,15 +20,12 @@ class DatetimeDeserializer(object):
         if isinstance(value, datetime):
             value = value.date()
         if isinstance(value, basestring):
-            # value = dateutil.parser.parse(value)
             # Fix some rare use case
             if 'Universal' in value:
                 value = value.replace('Universal', 'UTC')
 
-            value = re.sub(r'\.\d+', '', value)
-
             try:
-                value = datetime.strptime(value, '%Y/%m/%d %H:%M:%S %Z')
+                value = datetime.strptime(value, '%Y-%m-%d %H:%M')
             except:
                 value = datetime.now()
 

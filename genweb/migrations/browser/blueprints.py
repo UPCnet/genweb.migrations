@@ -19,6 +19,7 @@ from plone.dexterity.utils import iterSchemata
 
 from zope.schema import getFieldsInOrder
 from genweb.migrations.interfaces import IDeserializer
+from datetime import datetime
 
 import base64
 import pprint
@@ -327,6 +328,13 @@ class LeftOvers(object):
                             obj.set_target(ref_uuid)
                         except:
                             pass
+
+            # Put creation and modification time on its place
+            if item.get('creation_date', False):
+                obj.creation_date = datetime.strptime(item.get('creation_date'), '%Y-%m-%d %H:%M')
+            if item.get('modification_date', False):
+                obj.modification_date = datetime.strptime(item.get('modification_date'), '%Y-%m-%d %H:%M')
+
             yield item
 
 
