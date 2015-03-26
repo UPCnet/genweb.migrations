@@ -85,6 +85,11 @@ class CatalogSourceSection(object):
             for skip_path in self.remote_skip_paths:
                 if path.startswith(self.remote_root + skip_path):
                     skip = True
+
+            # Skip old talkback items
+            if 'talkback' in path:
+                skip = True
+
             if not skip:
                 self.storage.append(path)
                 item = self.get_remote_item(path)

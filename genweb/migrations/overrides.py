@@ -29,7 +29,11 @@ class DatetimeDeserializer(object):
                 value = value.replace('Universal', 'UTC')
 
             value = re.sub(r'\.\d+', '', value)
-            value = datetime.strptime(value, '%Y/%m/%d %H:%M:%S %Z')
+
+            try:
+                value = datetime.strptime(value, '%Y/%m/%d %H:%M:%S %Z')
+            except:
+                value = datetime.now()
 
             # Fix timezone
             tz_default = default_timezone(as_tzinfo=True)
