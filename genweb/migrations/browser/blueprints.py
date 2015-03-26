@@ -331,9 +331,16 @@ class LeftOvers(object):
 
             # Put creation and modification time on its place
             if item.get('creation_date', False):
-                obj.creation_date = datetime.strptime(item.get('creation_date'), '%Y-%m-%d %H:%M')
+                if IDexterityContent.providedBy(item):
+                    obj.creation_date = datetime.strptime(item.get('creation_date'), '%Y-%m-%d %H:%M')
+                else:
+                    obj.creation_date = DateTime(item.get('creation_date'))
+
             if item.get('modification_date', False):
-                obj.modification_date = datetime.strptime(item.get('modification_date'), '%Y-%m-%d %H:%M')
+                if IDexterityContent.providedBy(item):
+                    obj.modification_date = datetime.strptime(item.get('modification_date'), '%Y-%m-%d %H:%M')
+                else:
+                    obj.creation_date = DateTime(item.get('modification_date'))
 
             yield item
 
