@@ -1,11 +1,10 @@
 Changelog
 =========
 
-1.8 (unreleased)
+1.8 (2015-03-26)
 ----------------
 
-- Nothing changed yet.
-
+* Improve the date export format [Victor Fernandez de Alba]
 
 1.7 (2015-02-16)
 ----------------
