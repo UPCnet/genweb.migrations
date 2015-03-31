@@ -92,9 +92,16 @@ class CatalogSourceSection(object):
 
             if not skip:
                 self.storage.append(path)
-                item = self.get_remote_item(path)
+                #can't get the item
+                try:
+                    item = self.get_remote_item(path)
+                except:
+                    continue
 
                 if item:
+                    #SOLS EET
+                    if item['title'] == 'SEER':
+                        continue
                     #pass discussions
                     if item['_type'] == 'Discussion Item':
                         continue
