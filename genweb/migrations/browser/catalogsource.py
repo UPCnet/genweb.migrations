@@ -2,6 +2,7 @@ import base64
 import urllib
 import urllib2
 import simplejson
+import unicodedata
 from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
@@ -117,6 +118,11 @@ class CatalogSourceSection(object):
                         item['text'] = text_updated
 
                     ptype = item.get('_type', False)
+                    
+                    if ptype == 'FormStringField':
+                        desc = unicodedata.normalize('NFKD', item['description']).encode('ascii',errors='ignore')
+                        item['description'] = desc                        
+
                     # Banners create correct attributes
                     if ptype == 'Banner' or ptype == 'Logos_Footer':
                         item['remoteUrl'] = item['URLdesti']
@@ -127,7 +133,7 @@ class CatalogSourceSection(object):
                             # to take image
                             item['_datafield_image'] = item['_datafield_Imatge']
 
-                    # Collage sub-items fetcher                        
+                    # Collage sub-items fetcher                         
                     if ptype == 'Collage':
                         collageRows = []
                         collageColumns = []
