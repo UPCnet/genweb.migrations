@@ -1,11 +1,21 @@
 Changelog
 =========
 
-1.7 (unreleased)
+1.9 (unreleased)
 ----------------
 
 - Nothing changed yet.
 
+
+1.8 (2015-03-26)
+----------------
+
+* Improve the date export format [Victor Fernandez de Alba]
+
+1.7 (2015-02-16)
+----------------
+
+* Update Collage use case migration [Victor Fernandez de Alba]
 
 1.6 (2015-01-08)
 ----------------

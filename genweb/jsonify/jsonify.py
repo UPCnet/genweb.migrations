@@ -33,6 +33,7 @@ class GetItem(BrowserView):
 
         try:
             context_dict = Wrapper(self.context)
+
             if self.context.portal_type == 'Collage':
                 rowCollages = self.context.objectIds()
                 for rowCollage in rowCollages:
