@@ -11,6 +11,7 @@ try:
 except:
     import json
 
+from Products.Collage.interfaces import IDynamicViewManager
 from genweb.jsonify.wrapper import Wrapper
 
 
@@ -29,12 +30,38 @@ class GetItem(BrowserView):
     def __call__(self):
         """
         """
+
         try:
             context_dict = Wrapper(self.context)
+            if self.context.portal_type == 'Collage':
+                rowCollages = self.context.objectIds()
+                for rowCollage in rowCollages:
+                    context_rowCollage = Wrapper(self.context[rowCollage])
+                    context_dict['_rowCollage_'+rowCollage] = context_rowCollage
+                    colCollages = self.context[rowCollage].objectIds()
+                    # Row layout
+                    manager = IDynamicViewManager(self.context[rowCollage])
+                    rowLayout = manager.getLayout()
+                    context_rowCollage['finalObjectLayout'] = rowLayout
+
+                    for colCollage in colCollages:
+                        context_colCollage = Wrapper(self.context[rowCollage][colCollage])
+                        context_dict['_colCollage_'+rowCollage+'_'+colCollage] = context_colCollage
+                        finalObjects = self.context[rowCollage][colCollage].objectIds()
+                        for finalObject in finalObjects:
+                            # finalObject layout
+                            manager = IDynamicViewManager(self.context[rowCollage][colCollage][finalObject])
+                            finalObjectLayout = manager.getLayout()
+                            context_finalObject = Wrapper(self.context[rowCollage][colCollage][finalObject])
+                            context_finalObject['finalObjectLayout'] = finalObjectLayout
+                            if finalObject.startswith('alias'):
+                                context_dict['_aliasCollage_'+rowCollage+'_'+colCollage+'_'+finalObject] = context_finalObject
+                            else:
+                                context_dict['_finalObjectCollage_'+rowCollage+'_'+colCollage+'_'+finalObject] = context_finalObject
+
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
-
         passed = False
         while not passed:
             try:
