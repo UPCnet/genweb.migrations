@@ -100,13 +100,6 @@ class CatalogSourceSection(object):
                     continue
 
                 if item:
-                    #SOLS EET
-                    if item['title'] == 'SEER':
-                        continue
-                    #pass discussions
-                    if item['_type'] == 'Discussion Item':
-                        continue
-
                     item['_path'] = item['_path'][self.site_path_length:]
                     item['_auth_info'] = (self.remote_username, self.remote_password)
                     item['_site_path_length'] = self.site_path_length
@@ -137,17 +130,16 @@ class CatalogSourceSection(object):
                     if ptype == 'Collage':
                         collageRows = []
                         collageColumns = []
-                        collageAlias = []
-
+                        collageObjects = []
                         for key in item.keys():
                             if key.startswith('_rowCollage'):
                                 collageRows.append(item[key])
                                 del item[key]
                             if key.startswith('_colCollage'):
                                 collageColumns.append(item[key])
-                                del item[key]
-                            if key.startswith('_aliasCollage'):
-                                collageAlias.append(item[key])
+                                del item[key]                             
+                            if key.startswith('_aliasCollage') or key.startswith('_finalObjectCollage'):
+                                collageObjects.append(item[key])
                                 del item[key]
                         # Yield the main Collage
                         yield item
@@ -163,11 +155,12 @@ class CatalogSourceSection(object):
                             component['_auth_info'] = (self.remote_username, self.remote_password)
                             component['_site_path_length'] = self.site_path_length
                             yield component
-                        for component in collageAlias:
+                        for component in collageObjects:
                             component['_path'] = component['_path'][self.site_path_length:]
                             component['_auth_info'] = (self.remote_username, self.remote_password)
                             component['_site_path_length'] = self.site_path_length
-                            yield component
+                            yield component                         
+
                     else:
                         yield item
 

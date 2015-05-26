@@ -20,6 +20,7 @@ from plone.dexterity.utils import iterSchemata
 from zope.schema import getFieldsInOrder
 from genweb.migrations.interfaces import IDeserializer
 from datetime import datetime
+from Products.Collage.interfaces import IDynamicViewManager
 
 import base64
 import pprint
@@ -317,6 +318,10 @@ class LeftOvers(object):
                 if item['_local_roles_block']:
                     obj.__ac_local_roles_block__ = True
 
+            if item.get('finalObjectLayout',False):
+                manager = IDynamicViewManager(obj)
+                finalObjectLayout = manager.setLayout(item['finalObjectLayout'])
+
             # Rebuild CollageAlias AT reference
             if item.get('_type', False):
                 if item['_type'] == u'CollageAlias':
@@ -508,7 +513,6 @@ class OrderSection(object):
 
         # Set positions on every parent
         for path, positions in positions_mapping.items():
-
             # Normalize positions
             ordered_keys = sorted(positions.keys(), key=lambda x: positions[x])
             normalized_positions = {}
@@ -519,12 +523,15 @@ class OrderSection(object):
             # utils.py provides a traverse method.
             from collective.transmogrifier.utils import traverse
             parent = traverse(self.context, path)
-            #parent = self.context.unrestrictedTraverse(path.lstrip('/'))
+            # parent = self.context.unrestrictedTraverse(path.lstrip('/'))
             if not parent:
                 continue
+            # Reorder Collage items
+            if parent.portal_type == 'Collage' or parent.portal_type == 'CollageColumn' or parent.portal_type == 'CollageRow':
+                for key in normalized_positions.keys():
+                    parent.moveObjectToPosition(key, normalized_positions[key])
 
             parent_base = aq_base(parent)
-
             if hasattr(parent_base, 'getOrdering'):
                 ordering = parent.getOrdering()
                 # Only DefaultOrdering of p.folder is supported
