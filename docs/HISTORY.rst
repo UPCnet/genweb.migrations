@@ -1,11 +1,11 @@
 Changelog
 =========
 
-1.9 (unreleased)
+1.9 (2015-05-28)
 ----------------
 
-- Nothing changed yet.
-
+* add layout in collage items [Paco Gregori]
+* add layout in collage items [Paco Gregori]
 
 1.8 (2015-03-26)
 ----------------
