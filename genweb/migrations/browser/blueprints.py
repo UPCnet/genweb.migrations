@@ -340,7 +340,6 @@ class LeftOvers(object):
                     obj.creation_date = datetime.strptime(item.get('creation_date'), '%Y-%m-%d %H:%M')
                 else:
                     obj.creation_date = DateTime(item.get('creation_date'))
-            import ipdb;ipdb.set_trace()
             if item.get('modification_date', False):
                 if IDexterityContent.providedBy(item):
                     obj.modification_date = datetime.strptime(item.get('modification_date'), '%Y-%m-%d %H:%M')
