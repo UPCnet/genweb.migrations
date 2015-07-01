@@ -82,6 +82,7 @@ class LotusSourceSection(object):
         biblio = createContentInContainer(ca, 'Folder', NAME_BD , title=NAME_BD, description=u'Biblioteca de importaciones')
         biblio.reindexObject()
         attached = createContentInContainer(biblio, 'Folder', 'annexes' , title='Annexes', description=u'Biblioteca de importaciones')
+        attached.exclude_from_nav = True
         attached.reindexObject()
         for count,elem in enumerate(root):
             self.context.plone_log(str(count))
@@ -102,17 +103,17 @@ class LotusSourceSection(object):
                     if counter == 12:
                         data_modif = e.text
             parent=biblio
-            keywords=[]
+            #keywords=[]
             if(path == None or path.startswith('/')):
                 title_sub = self.generateUnusedId(subject)
-                keywords = [subject]
+                #keywords = [subject]
                 child_name= unicodedata.normalize('NFKD', unicode(title_sub)).encode('ascii',errors='ignore')
                 parentfolder = self.create_child(parent,'pendiente','Pendiente',autor,data_creacio,data_modif)
                 parent = self.create_child(parentfolder,child_name,subject,autor,data_creacio,data_modif)
             else:
                 base_path,ide_obj= os.path.split(path)
-                keywords = base_path.split("/")
-                for elem in keywords:
+                #keywords = base_path.split("/")
+                for elem in base_path.split("/"):
                     if len(elem) >1:
                         child_name = unicodedata.normalize('NFKD', unicode(elem)).encode('ascii',errors='ignore')
                         parent = self.create_child(parent,child_name,elem,autor,data_creacio,data_modif)
@@ -225,7 +226,7 @@ class LotusSourceSection(object):
             #parent.setDefaultPage(objectNote.id)
             objectNote.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
             objectNote.title = subject
-            objectNote.subject = keywords
+            #objectNote.subject = keywords
             objectNote.creators = autor
             objectNote.reindexObject()
             objectNote.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')
