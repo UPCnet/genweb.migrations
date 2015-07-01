@@ -52,15 +52,15 @@ class LotusSourceSection(object):
         NAME_BD = self.get_option('name-bd')
         PATH = self.get_option('bd-path')
         regex_type = self.get_option('regex-type')
-        URL = 'https://mola.upc.edu'
-        TRAVERSE_PATH = '/upc/'+ NAME_URL +'.nsf/'
-        LOGIN_URL = 'https://mola.upc.edu/names.nsf?Login'
+        URL = self.get_option('server-url')
+        TRAVERSE_PATH = 'upc/'+ NAME_URL +'.nsf/'
+        LOGIN_URL = URL  + 'names.nsf?Login'
         PATH1 = '(JerarquiaExportacio)'
-        BASE_URL = 'https://mola.upc.edu/'+ PATH 
+        BASE_URL =  URL + PATH 
         MAIN_URL = URL + TRAVERSE_PATH + PATH1 + '?ReadViewEntries&PreFormat&Start=1&Navigate=16&Count=1000000064&SkipNavigate=32783&EndView=1'
         params = {
-                    'RedirectTo': 'https://mola.upc.edu/names.nsf',
-                    'Servidor': 'https://mola.upc.edu/names.nsf',
+                    'RedirectTo': URL + 'names.nsf',
+                    'Servidor': URL + 'names.nsf',
                     'Username': '%s' % USER,
                     'Password': '%s' % PASS,
                  }
@@ -72,7 +72,7 @@ class LotusSourceSection(object):
         }
         session.cookies.update(extra_cookies)
         response = session.post(LOGIN_URL, params, allow_redirects=True)
-        cookie = {'Cookie': 'HabCookie=1; Desti=' + URL + '/' + PATH + '; RetornTancar=1; NomUsuari=' + USER + ' LtpaToken=' + session.cookies['LtpaToken']}
+        cookie = {'Cookie': 'HabCookie=1; Desti=' + URL  + PATH + '; RetornTancar=1; NomUsuari=' + USER + ' LtpaToken=' + session.cookies['LtpaToken']}
         response = session.get(MAIN_URL, headers=cookie)
         
         self.context.plone_log('Iniciando migracion..............')
