@@ -216,7 +216,6 @@ class LotusSourceSection(object):
                     file_obj.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')
                 except:
                     pass
-            import ipdb;ipdb.set_trace()
             # remove section links...
             removeSections = re.findall(r'(<a[^>]+target="_self">.*?</a>)', tinyContent)
             for obj in removeSections:
