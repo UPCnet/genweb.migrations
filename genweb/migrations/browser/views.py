@@ -5,7 +5,6 @@ from Products.CMFPlone.interfaces import IPloneSiteRoot
 from collective.transmogrifier.transmogrifier import configuration_registry
 from collective.transmogrifier.transmogrifier import Transmogrifier
 import requests
-import logging
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 from xml.etree.ElementTree import SubElement
@@ -14,7 +13,6 @@ from unidecode import unidecode
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobImage,NamedBlobFile
 import re
-import logging
 from  Products.CMFCore.utils  import  getToolByName 
 from Products.CMFPlone.utils import _createObjectByType
 from plone.app.textfield.value import RichTextValue
@@ -40,20 +38,18 @@ catalog-path = %(remote-root)s/portal_catalog
 catalog-query = %(catalog-query)s
 remote-skip-paths = %(remote-skip-paths)s
 """
-NOTES_USER = "desenvolupament.eatenea"
-NOTES_PASS = "Notesnotes1"
-# name_bd = u"CS3 - LCFME"
-# NAME_URL = 'LCFME'
-# PATH = 'f29e475440da49cbc1257e5b0037c03b/' #CS3 LF
-# TRAVERSE_PATH = '/upc/LCFME.nsf/'
-name_bd = u'Administracio SAP. Usuaris'
-NAME_URL = 'SAP-Admin-usuarisBONA'
-PATH = 'c7311306dd23fc47c1257e6f0038e530/' #SAP
-TRAVERSE_PATH = '/upc/SAP-Admin-usuarisBONA.nsf/'
-# name_bd = u"CS3 Manual d-Explotacio"
-# NAME_URL = 'CS3Explotacio'
-# PATH = '238c362a703f0ac1c1257e5b00393d01/' #CS3
-# TRAVERSE_PATH = '/upc/CS3Explotacio.nsf/'
+
+class LotusMigration(grok.View):
+    grok.name("lotus_migration")
+    grok.context(IPloneSiteRoot)
+    grok.require('cmf.ManagePortal')
+
+    def render(self):
+        portal = api.portal.get()
+        transmogrifier = Transmogrifier(portal)
+        transmogrifier('genweb.migrations.lotus')
+
+
 
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
@@ -79,252 +75,4 @@ class MigrationDashboard(grok.View):
         portal = api.portal.get()
         transmogrifier = Transmogrifier(portal)
         transmogrifier('genweb.migrations.dashboard')
-
-class LotusMigration(grok.View):
-    grok.name("lotus_migration")
-    grok.context(IPloneSiteRoot)
-    grok.template("lotus_migration")
-    grok.require('cmf.ManagePortal')
-
-    def update(self):
-        from datetime import datetime
-        session = requests.session()
-        enc = sys.getfilesystemencoding()
-        URL = 'https://mola.upc.edu'
-        LOGIN_URL = 'https://mola.upc.edu/names.nsf?Login'
-        PATH1 = '(JerarquiaExportacio)'
-        BASE_URL = 'https://mola.upc.edu/%s' % PATH
-       
-        MAIN_URL = URL + TRAVERSE_PATH + PATH1 + '?ReadViewEntries&PreFormat&Start=1&Navigate=16&Count=1000000064&SkipNavigate=32783&EndView=1'
-        
-        logging.basicConfig(format='%(asctime)s %(message)s',
-                            datefmt='%m/%d/%Y %I:%M:%S %p',
-                            filename='import-ADS.log',
-                            level=logging.DEBUG)
-
-        params = {
-                    'RedirectTo': 'https://mola.upc.edu/names.nsf',
-                    'Servidor': 'https://mola.upc.edu/names.nsf',
-                    'Username': '%s' % NOTES_USER,
-                    'Password': '%s' % NOTES_PASS,
-                 }
-
-        extra_cookies = {
-            'HabCookie': '1',
-            'Desti': URL+TRAVERSE_PATH+PATH1,
-            'NomUsuari': '%s' % NOTES_USER,
-        }
-        
-        session.cookies.update(extra_cookies)
-        response = session.post(LOGIN_URL, params, allow_redirects=True)
-        cookie = {'Cookie': 'HabCookie=1; Desti=' + URL + '/' + PATH + '; RetornTancar=1; NomUsuari=' + NOTES_USER + ' LtpaToken=' + session.cookies['LtpaToken']}
-        response = requests.get(MAIN_URL, headers=cookie)
-        
-        self.context.plone_log('Iniciando migracion..............')
-        root = ElementTree.fromstring(response.content)
-        portal = api.portal.get()
-        ca= portal['ca']
-        biblio = createContentInContainer(ca, 'Folder', name_bd, title=name_bd, description=u'Biblioteca de importaciones')
-        biblio.reindexObject()
-        for count,elem in enumerate(root):
-            self.context.plone_log(str(count))
-            attribute = elem.attrib
-            position = attribute['position']
-            noteid = attribute['noteid']
-            ide = attribute['unid']
-            for counter,e in enumerate(elem.iter()):
-                if e is not elem:
-                    if counter==2:
-                        path=e.text
-                    if counter==4:
-                        subject = e.text
-                    if counter == 8:
-                        autor = e.text,
-                    if counter == 10:
-                        data_creacio = e.text
-                    if counter == 12:
-                        data_modif = e.text
-            parent=biblio
-            keywords=[]
-            if(path == None or path.startswith('/')):
-                title_sub = self.generateUnusedId(subject)
-                keywords = [subject]
-                child_name= unicodedata.normalize('NFKD', unicode(title_sub)).encode('ascii',errors='ignore')
-                parentfolder = self.create_child(parent,'pendiente','Pendiente',autor,data_creacio,data_modif)
-                parent = self.create_child(parentfolder,child_name,subject,autor,data_creacio,data_modif)
-            else:
-                base_path,ide_obj= os.path.split(path)
-                keywords = base_path.split("/")
-                for elem in keywords:
-                    if len(elem) >1:
-                        child_name = unicodedata.normalize('NFKD', unicode(elem)).encode('ascii',errors='ignore')
-                        parent = self.create_child(parent,child_name,elem,autor,data_creacio,data_modif)
-            response2 = requests.get(URL + TRAVERSE_PATH + PATH + ide +'?OpenDocument&ExpandSection=1,10,11,1.1,1.1.2,12,1.2,13,1.3,14,1.4,15,1.5,16,1.6,17,1.7,18,1.8,19,1.9,2,20,21,2.1,2.1.1,2.1.2,22,2.2,23,2.3,24,2.4,25,2.5,26,2.6,27,2.7,28,2.8,29,2.9,3,30,31,3.1,32,3.2,33,3.3,34,3.4,35,4,4.1,4.3,4.4,4.5,5,6,7,8,9', headers=cookie)
-            htmlContent = response2.content.decode('iso-8859-1').encode('utf-8')
-            #Cambiar dependiendo de la vista del documento, primero vista sencilla, segundo vista con cabecera grande
-            tinyContent =   re.search(r'^(.*?)(<script.*/script>)(.*<form.*?>)(.*?<table.*?/table>)(.*?)(<center.*?<hr.*?)<a\s*href="\/upc\/'+NAME_URL +'\.nsf\/\(\$All\)\?OpenView">.*$', htmlContent, re.DOTALL | re.MULTILINE).groups()[4]
-            #tinyContent = re.search(r'^(.*?)(.*<form.*?>)(.*?<table.*?<table)(.*?/table>)(.*?<table.*?/table>)?(.*?/table>)(.*?)<hr.*$', htmlContent, re.DOTALL | re.MULTILINE).groups()[6]
-            title_subj = self.generateUnusedId(subject)
-            objectNote = createContentInContainer(parent, 'Document', title_subj,title=title_subj)
-            imatgeSrc = re.findall(r'<img[^>]+src=\"([^\"]+)\"', tinyContent)
-            imatgeSrc = [a for a in imatgeSrc if '/upc' in a]
-            numimage = 1
-
-            for obj in imatgeSrc:
-                try:
-                    imatge = session.get(URL + obj, headers=cookie)
-                    name_image=unicode('Image' + noteid +str(numimage))
-                    replacedName = '/'.join((objectNote.absolute_url() + '/image'+noteid.lower() + str(numimage)).split('/')[5:])
-                    tinyContent = tinyContent.replace(obj, replacedName)
-                    imatge_file = NamedBlobImage(
-                        data = imatge.content,
-                        contentType = 'image/gif',
-                        filename =  name_image
-                        )
-                    imageObject = createContentInContainer(parent,'Image', title= name_image,image=imatge_file)
-                    imageObject.exclude_from_nav = True
-                    imageObject.reindexObject()
-                    numimage = numimage + 1
-                except:
-                    pass
-            # Import Files of the object
-            attachSrc = re.findall(r'<a[^>]+href=\"([^\"]+)\"', htmlContent)
-            attachSrc = [a for a in attachSrc if '$FILE' in a]
-            for obj in attachSrc:
-                try:
-                    fileNote = session.get(URL + obj, headers=cookie,stream=True)
-                    # fake the same filename in folder object...
-                    contents = objectNote.contentIds()
-                    fich = obj.split('/')[-1]
-                    extension = fich.split('.')[-1]
-                    nom_fich = '.'.join(fich.split('.')[:-1])
-                    file_name = nom_fich.decode('iso-8859-1').encode('utf-8')
-                    # import ipdb;ipdb.set_trace()
-                    normalizedName = getToolByName(self.context, 'plone_utils').normalizeString(file_name)
-                    normalizedName = self.calculaNom(contents, normalizedName)
-                    attch_name=unicode(normalizedName+'.'+extension)
-                    file_obj = api.content.create(                          
-                                    parent, 'File', 
-                                    id = attch_name,                             
-                                    title = attch_name, 
-                                    safe_id = True
-                                    )
-                    tinyContent = tinyContent.replace(obj, normalizedName+'.'+extension)
-                    # OpenOffice files internally are saved as ZIP files, we must force metadata...
-                    
-                    if extension == 'odt':
-                        file_format='application/vnd.oasis.opendocument.text'
-                    if extension == 'ods':
-                        file_format='application/vnd.oasis.opendocument.spreadsheet'
-                    if extension == 'odp':
-                        file_format='application/vnd.oasis.opendocument.presentation'
-                    if extension == 'odg':
-                        file_format='application/vnd.oasis.opendocument.graphics'
-                    if extension == 'doc':
-                        file_format='application/msword'
-                    if extension == 'docx':
-                        file_format='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                    if extension == 'xls':
-                        file_format='application/vnd.ms-excel'
-                    if extension == 'xlsx':
-                        file_format='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                    if extension == 'ppt':
-                        file_format='application/vnd.ms-powerpoint'
-                    if extension == 'pptx':
-                        file_format='application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                    if extension == 'bmp':
-                        file_format='image/bmp'
-                    if extension == 'pdf':
-                        file_format='application/pdf'
-                    if extension == 'exe' or extension =='msi':
-                        file_format = 'application/octet-stream'
-                    if extension == 'zip':
-                        file_format = 'application/zip'
-                    if extension == 'txt' or extension =='sh':
-                        file_format = 'text/plain'    
-                    notes_file = NamedBlobFile(
-                        data = fileNote.raw.data,
-                        contentType = file_format,
-                        filename = attch_name 
-                        )
-                    file_obj.file= notes_file
-                    file_obj.exclude_from_nav = True
-                    file_obj.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
-                    file_obj.creators = autor
-                    file_obj.reindexObject()
-                    file_obj.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')
-                except:
-                    pass
-            # remove section links...
-            removeSections = re.findall(r'(<a[^>]+target="_self">.*?</a>)', tinyContent)
-            for obj in removeSections:
-                tinyContent = tinyContent.replace(obj, "")
-            # Create modified HTML content with new image/file paths
-            objectNote.text= RichTextValue(tinyContent,'text/html', 'text/x-html-safe', 'utf-8')
-            parent.setDefaultPage(objectNote.id)
-            objectNote.exclude_from_nav = True
-            objectNote.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
-            objectNote.title = subject
-            objectNote.subject = keywords
-            objectNote.creators = autor
-            objectNote.reindexObject()
-            objectNote.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')
-        self.context.plone_log('Archivos migrados: '+str(count))
-        self.context.plone_log('Finalizando migracion...................')
-
-    def create_child(self, parent_folder,path_name,folder_name,autor,data_creacio,data_modif):
-        normalizedd =  getToolByName(self.context, 'plone_utils').normalizeString(path_name)
-        try:
-            obj_created = parent_folder[normalizedd]
-        except:
-            obj_created = False
-        
-        if not obj_created:
-            obj_created = createContentInContainer(parent_folder, 'Folder', normalizedd, title=normalizedd)
-            obj_created.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
-            obj_created.title = folder_name
-            obj_created.creators = autor
-            obj_created.reindexObject()
-            obj_created.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')  
-        return obj_created 
-
-    def get_path(self, path):
-        return "-".join(unidecode(path.replace("'","")).lower().split())
-
-    def calculaNom(self, ids, nom_normalitzat, i=0):
-        """
-        """
-        if i != 0:
-            nom = nom_normalitzat + str(i)
-        else:
-            nom = nom_normalitzat
-
-        if nom not in ids:
-            return nom
-        else:
-            return self.calculaNom(ids, nom_normalitzat, i + 1)
-
-    def generateUnusedId(self, title):
-        """
-        """
-        plone_utils = getToolByName(self.context, 'plone_utils')
-        id = plone_utils.normalizeString(title)
-        if id in self.context.contentIds():
-            number = 2
-            while '%s-%i' % (id, number) in self.context.contentIds():
-                number += 1
-            id = '%s-%i' % (id, number)
-        return id
-
-    def createNotesObject(self, type, folder, title):
-        """
-        """
-        id = self.generateUnusedId(title)
-        _createObjectByType(type, folder, id)
-        obj = folder[id]
-
-        return obj
-        
-        
-         
 
