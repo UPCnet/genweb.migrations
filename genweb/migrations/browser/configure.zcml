@@ -63,10 +63,6 @@
         component=".lotussource.LotusSourceSection"
         name="genweb.migrations.lotussource"
         />
-     <utility
-        component=".loadingvalues.LoadingValuesSection"
-        name="genweb.migrations.loadingvalues"
-        />
 
     <transmogrifier:registerConfig
         name="plone.org.main"
