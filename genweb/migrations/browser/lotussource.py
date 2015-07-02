@@ -22,8 +22,10 @@ from os.path import isfile, join, basename
 from urlparse import urlparse
 import urllib2
 from Products.CMFPlone.utils import safe_unicode
-from datetime import datetime,time
+from datetime import datetime,time,timedelta
 import unicodedata
+import transaction
+
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from zope.interface import classProvides, implements
@@ -145,6 +147,7 @@ class LotusSourceSection(object):
                     tinyContent = tinyContent.replace(obj, replacedName)
                     imageObject.exclude_from_nav = True
                     imageObject.reindexObject()
+                    transaction.commit()
                     numimage = numimage + 1
                 except:
                     pass
@@ -214,6 +217,7 @@ class LotusSourceSection(object):
                     file_obj.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
                     file_obj.creators = autor
                     file_obj.reindexObject()
+                    transaction.commit()
                     file_obj.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')
                 except:
                     pass
@@ -229,7 +233,8 @@ class LotusSourceSection(object):
             #objectNote.subject = keywords
             objectNote.creators = autor
             objectNote.reindexObject()
-            objectNote.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')
+            transaction.commit()
+            objectNote.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
         self.context.plone_log('Archivos migrados: '+str(count))
         self.context.plone_log('Finalizando migracion...................')
 
@@ -246,7 +251,8 @@ class LotusSourceSection(object):
             obj_created.title = folder_name
             obj_created.creators = autor
             obj_created.reindexObject()
-            obj_created.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')  
+            transaction.commit()
+            obj_created.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
         return obj_created 
 
     def get_path(self, path):
