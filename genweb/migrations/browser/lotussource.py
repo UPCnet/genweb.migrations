@@ -228,13 +228,13 @@ class LotusSourceSection(object):
             # Create modified HTML content with new image/file paths
             objectNote.text= RichTextValue(tinyContent,'text/html', 'text/x-html-safe', 'utf-8')
             #parent.setDefaultPage(objectNote.id)
-            objectNote.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
+            objectNote.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
             objectNote.title = subject
             #objectNote.subject = keywords
             objectNote.creators = autor
             objectNote.reindexObject()
             transaction.commit()
-            objectNote.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
+            objectNote.modification_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
         self.context.plone_log('Archivos migrados: '+str(count))
         self.context.plone_log('Finalizando migracion...................')
 
@@ -247,12 +247,12 @@ class LotusSourceSection(object):
         
         if not obj_created:
             obj_created = createContentInContainer(parent_folder, 'Folder', normalizedd, title=normalizedd)
-            obj_created.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
+            obj_created.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
             obj_created.title = folder_name
             obj_created.creators = autor
             obj_created.reindexObject()
             transaction.commit()
-            obj_created.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
+            obj_created.modification_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
         return obj_created 
 
     def get_path(self, path):
