@@ -10,7 +10,8 @@ class SslTransportAdapter(HTTPAdapter):
     """"Transport adapter" that allows us to use SSLv3."""
 
     def init_poolmanager(self, connections =DEFAULT_POOLSIZE, maxsize = DEFAULT_RETRIES, block=DEFAULT_POOLBLOCK):
+        
         self.poolmanager = PoolManager(num_pools=connections,
                                        maxsize=maxsize,
                                        block=block,
-                                       ssl_version=ssl.PROTOCOL_SSLv23)
+                                       ssl_version=ssl.PROTOCOL_SSLv3)

@@ -72,6 +72,7 @@ class LotusSourceSection(object):
             'Desti': URL+TRAVERSE_PATH+PATH1,
             'NomUsuari': '%s' % USER,
         }
+        import ipdb;ipdb.set_trace()
         session.cookies.update(extra_cookies)
         response = session.post(LOGIN_URL, params, allow_redirects=True)
         cookie = {'Cookie': 'HabCookie=1; Desti=' + URL  + PATH + '; RetornTancar=1; NomUsuari=' + USER + ' LtpaToken=' + session.cookies['LtpaToken']}
@@ -136,7 +137,7 @@ class LotusSourceSection(object):
                 try:
                     imatge = session.get(URL + obj, headers=cookie)
                     name_image=unicode('Image' + ide +str(numimage))
-                    replacedName = '/'.join((attached.absolute_url() + '/image'+ide.lower() + str(numimage)).split('/')[5:])
+                    
                     
                     imatge_file = NamedBlobImage(
                         data = imatge.content,
@@ -144,10 +145,13 @@ class LotusSourceSection(object):
                         filename =  name_image
                         )
                     imageObject = createContentInContainer(attached,'Image', title= name_image,image=imatge_file)
-                    tinyContent = tinyContent.replace(obj, replacedName)
+                    
                     imageObject.exclude_from_nav = True
                     imageObject.reindexObject()
                     transaction.commit()
+                    replacedName = 'resolveuid/' + imageObject.UID()
+                    
+                    tinyContent = tinyContent.replace(obj, replacedName)
                     numimage = numimage + 1
                 except:
                     pass
