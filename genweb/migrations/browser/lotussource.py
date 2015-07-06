@@ -72,7 +72,6 @@ class LotusSourceSection(object):
             'Desti': URL+TRAVERSE_PATH+PATH1,
             'NomUsuari': '%s' % USER,
         }
-        import ipdb;ipdb.set_trace()
         session.cookies.update(extra_cookies)
         response = session.post(LOGIN_URL, params, allow_redirects=True)
         cookie = {'Cookie': 'HabCookie=1; Desti=' + URL  + PATH + '; RetornTancar=1; NomUsuari=' + USER + ' LtpaToken=' + session.cookies['LtpaToken']}
