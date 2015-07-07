@@ -136,20 +136,16 @@ class LotusSourceSection(object):
                 try:
                     imatge = session.get(URL + obj, headers=cookie)
                     name_image=unicode('Image' + ide +str(numimage))
-                    
-                    
                     imatge_file = NamedBlobImage(
                         data = imatge.content,
                         contentType = 'image/gif',
                         filename =  name_image
                         )
                     imageObject = createContentInContainer(attached,'Image', title= name_image,image=imatge_file)
-                    
                     imageObject.exclude_from_nav = True
                     imageObject.reindexObject()
                     transaction.commit()
                     replacedName = 'resolveuid/' + imageObject.UID()
-                    
                     tinyContent = tinyContent.replace(obj, replacedName)
                     numimage = numimage + 1
                 except:
@@ -175,8 +171,6 @@ class LotusSourceSection(object):
                                     title = attch_name, 
                                     safe_id = True
                                     )
-                    replacedObjName = attached.absolute_url() +'/'+ normalizedName+'.'+extension
-                    
                     # OpenOffice files internally are saved as ZIP files, we must force metadata...
                     
                     if extension == 'odt':
@@ -215,13 +209,15 @@ class LotusSourceSection(object):
                         filename = attch_name 
                         )
                     file_obj.file= notes_file
-                    tinyContent = tinyContent.replace(obj, replacedObjName)
                     file_obj.exclude_from_nav = True
                     file_obj.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
                     file_obj.creators = autor
+                    file_obj.setModificationDate(datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p'))
                     file_obj.reindexObject()
+                    replacedObjName = 'resolveuid/' + file_obj.UID()
+                    tinyContent = tinyContent.replace(obj, replacedObjName)
                     transaction.commit()
-                    file_obj.modification_date = datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p')
+                    
                 except:
                     pass
             # remove section links...
@@ -233,13 +229,13 @@ class LotusSourceSection(object):
             #parent.setDefaultPage(objectNote.id)
             objectNote.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
             objectNote.title = subject
-            #objectNote.subject = keywords
             objectNote.creators = autor
             objectNote.reindexObject()
+            objectNote.setModificationDate(datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2))
+            objectNote.reindexObject(idxs=['modified'])
             transaction.commit()
-            objectNote.modification_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
         self.context.plone_log('Archivos migrados: '+str(count))
-        self.context.plone_log('Finalizando migracion...................')
+        self.context.plone_log('Migracion Finalizada.')
 
     def create_child(self, parent_folder,path_name,folder_name,autor,data_creacio,data_modif):
         normalizedd =  getToolByName(self.context, 'plone_utils').normalizeString(path_name)
@@ -255,7 +251,8 @@ class LotusSourceSection(object):
             obj_created.creators = autor
             obj_created.reindexObject()
             transaction.commit()
-            obj_created.modification_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
+            obj_created.setModificationDate(datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2))
+            objectNote.reindexObject(idxs=['modified'])
         return obj_created 
 
     def get_path(self, path):
