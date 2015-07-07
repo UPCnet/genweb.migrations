@@ -252,7 +252,7 @@ class LotusSourceSection(object):
             obj_created.reindexObject()
             transaction.commit()
             obj_created.setModificationDate(datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2))
-            objectNote.reindexObject(idxs=['modified'])
+            obj_created.reindexObject(idxs=['modified'])
         return obj_created 
 
     def get_path(self, path):
