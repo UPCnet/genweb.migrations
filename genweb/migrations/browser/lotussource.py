@@ -83,9 +83,6 @@ class LotusSourceSection(object):
         ca= portal['ca']
         biblio = createContentInContainer(ca, 'Folder', NAME_BD , title=NAME_BD, description=u'Biblioteca de importaciones')
         biblio.reindexObject()
-        attached = createContentInContainer(biblio, 'Folder', 'annexes' , title='Annexes', description=u'Biblioteca de importaciones')
-        attached.exclude_from_nav = True
-        attached.reindexObject()
         for count,elem in enumerate(root):
             self.context.plone_log(str(count))
             attribute = elem.attrib
@@ -141,7 +138,7 @@ class LotusSourceSection(object):
                         contentType = 'image/gif',
                         filename =  name_image
                         )
-                    imageObject = createContentInContainer(attached,'Image', title= name_image,image=imatge_file)
+                    imageObject = createContentInContainer(parent,'Image', title= name_image,image=imatge_file)
                     imageObject.exclude_from_nav = True
                     imageObject.reindexObject()
                     transaction.commit()
@@ -166,7 +163,7 @@ class LotusSourceSection(object):
                     normalizedName = self.calculaNom(contents, normalizedName)
                     attch_name=unicode(normalizedName+'.'+extension)
                     file_obj = api.content.create(                          
-                                    attached, 'File', 
+                                    parent, 'File', 
                                     id = attch_name,                             
                                     title = attch_name, 
                                     safe_id = True
