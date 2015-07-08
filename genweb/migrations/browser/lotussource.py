@@ -82,6 +82,7 @@ class LotusSourceSection(object):
         portal = api.portal.get()
         ca= portal['ca']
         biblio = createContentInContainer(ca, 'Folder', NAME_BD , title=NAME_BD, description=u'Biblioteca de importaciones')
+        biblio.setLayout('folder_tabular_view')
         biblio.reindexObject()
         for count,elem in enumerate(root):
             self.context.plone_log(str(count))
@@ -96,7 +97,10 @@ class LotusSourceSection(object):
                     if counter==4:
                         subject = e.text
                     if counter == 8:
-                        autor = e.text,
+                        if len(e.text)>0:
+                            autor = e.text
+                        else:
+                            autor=''
                     if counter == 10:
                         data_creacio = e.text
                     if counter == 12:
@@ -108,6 +112,7 @@ class LotusSourceSection(object):
                 #keywords = [subject]
                 child_name= unicodedata.normalize('NFKD', unicode(title_sub)).encode('ascii',errors='ignore')
                 parentfolder = self.create_child(parent,'pendiente','Pendiente',autor,data_creacio,data_modif)
+                parentfolder.setLayout('folder_tabular_view')
                 parent = self.create_child(parentfolder,child_name,subject,autor,data_creacio,data_modif)
             else:
                 base_path,ide_obj= os.path.split(path)
@@ -245,7 +250,8 @@ class LotusSourceSection(object):
             obj_created = createContentInContainer(parent_folder, 'Folder', normalizedd, title=normalizedd)
             obj_created.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
             obj_created.title = folder_name
-            obj_created.creators = autor
+            if len(autor)>0:
+                obj_created.creators = autor
             obj_created.reindexObject()
             obj_created.setLayout('folder_tabular_view')
             transaction.commit()

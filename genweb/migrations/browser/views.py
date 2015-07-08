@@ -49,8 +49,6 @@ class LotusMigration(grok.View):
         transmogrifier = Transmogrifier(portal)
         transmogrifier('genweb.migrations.lotus')
 
-
-
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
     grok.name('migration_dashboard')
@@ -75,4 +73,5 @@ class MigrationDashboard(grok.View):
         portal = api.portal.get()
         transmogrifier = Transmogrifier(portal)
         transmogrifier('genweb.migrations.dashboard')
+
 
