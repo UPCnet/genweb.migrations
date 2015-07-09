@@ -213,7 +213,7 @@ class LotusSourceSection(object):
                     file_obj.file= notes_file
                     file_obj.exclude_from_nav = True
                     file_obj.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p')
-                    file_obj.creators = autor
+                    file_obj.creators = (autor)
                     file_obj.setModificationDate(datetime.strptime(data_modif, '%m/%d/%Y %I:%M:%S %p'))
                     file_obj.reindexObject()
                     replacedObjName = 'resolveuid/' + file_obj.UID()
@@ -231,7 +231,8 @@ class LotusSourceSection(object):
             #parent.setDefaultPage(objectNote.id)
             objectNote.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
             objectNote.title = subject
-            objectNote.creators = autor
+            if len(autor)>0:
+                objectNote.creators = (autor)
             objectNote.reindexObject()
             objectNote.setModificationDate(datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2))
             objectNote.reindexObject(idxs=['modified'])
@@ -251,7 +252,7 @@ class LotusSourceSection(object):
             obj_created.creation_date = datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2) 
             obj_created.title = folder_name
             if len(autor)>0:
-                obj_created.creators = autor
+                obj_created.creators = (autor)
             obj_created.reindexObject()
             obj_created.setLayout('folder_tabular_view')
             transaction.commit()
