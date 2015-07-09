@@ -71,7 +71,7 @@ class LotusView(grok.View):
 
     def update_parents(self,obj,path):
         parent = obj.aq_inner.aq_parent
-        if '/'.join(parent.getPhysicalPath()) == path:
+        if '/'.join(obj.getPhysicalPath()) == path:
             pass
         else:
             parent.setModificationDate(obj.creation_date)
