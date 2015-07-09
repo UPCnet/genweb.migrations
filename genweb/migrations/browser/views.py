@@ -17,7 +17,7 @@ from plone.app.textfield.value import RichTextValue
 from Products.CMFPlone.interfaces import IBrowserDefault
 
 from Products.CMFPlone.utils import safe_unicode
-
+from Acquisition import aq_inner, aq_parent 
 from zope.interface import Interface
 
 
@@ -67,7 +67,17 @@ class LotusView(grok.View):
                     parent.setDefaultPage(o.getId())
                     parent.setModificationDate(o.creation_date)
                     parent.reindexObject(idxs=['modified'])
-               
+                    self.update_parents(parent,folder_path) 
+
+    def update_parents(self,obj,path):
+        parent = obj.aq_inner.aq_parent
+        if '/'.join(parent.getPhysicalPath()) == path:
+            pass
+        else:
+            parent.setModificationDate(obj.creation_date)
+            parent.reindexObject(idxs=['modified'])
+            self.update_parents(parent,path)
+
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
     grok.name('migration_dashboard')
