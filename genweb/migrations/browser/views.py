@@ -4,25 +4,21 @@ from plone import api
 from Products.CMFPlone.interfaces import IPloneSiteRoot
 from collective.transmogrifier.transmogrifier import configuration_registry
 from collective.transmogrifier.transmogrifier import Transmogrifier
-import requests
+
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 from xml.etree.ElementTree import SubElement
-import sys, os
+
 from unidecode import unidecode
-from plone.dexterity.utils import createContentInContainer
-from plone.namedfile.file import NamedBlobImage,NamedBlobFile
-import re
-from  Products.CMFCore.utils  import  getToolByName 
-from Products.CMFPlone.utils import _createObjectByType
+
+
+from Products.CMFCore.utils  import  getToolByName 
 from plone.app.textfield.value import RichTextValue
 from Products.CMFPlone.interfaces import IBrowserDefault
-from os.path import isfile, join, basename
-from urlparse import urlparse
-import urllib2
+
 from Products.CMFPlone.utils import safe_unicode
-from datetime import datetime,time
-import unicodedata
+
+from zope.interface import Interface
 
 
 TEMPLATE = """[transmogrifier]
@@ -49,6 +45,29 @@ class LotusMigration(grok.View):
         transmogrifier = Transmogrifier(portal)
         transmogrifier('genweb.migrations.lotus')
 
+class LotusView(grok.View):
+    grok.name("lotus_view")
+    grok.context(Interface)
+    grok.require('cmf.ManagePortal')
+    grok.template('lotus_migration')
+
+    def update(self):
+        portal = api.portal.get()
+        context = self.context
+        catalog = getToolByName(context, 'portal_catalog')
+        folder_path = '/'.join(context.getPhysicalPath())
+        results = catalog(path={'query': folder_path},portal_type='Folder') 
+        for brain in results:
+            items = len(catalog(path={"query": brain.getPath(), "depth": 1},portal_type='Folder'))
+            if items == 0:
+                pages = catalog(path={"query": brain.getPath(), "depth": 1},portal_type='Document')
+                objs = [b.getObject() for b in pages ]
+                for o in objs:
+                    parent = o.aq_parent
+                    parent.setDefaultPage(o.getId())
+                    parent.setModificationDate(o.creation_date)
+                    parent.reindexObject(idxs=['modified'])
+               
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
     grok.name('migration_dashboard')

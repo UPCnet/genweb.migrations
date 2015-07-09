@@ -1,1 +1,22 @@
-hello
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ca"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="ca"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="imports"
+      >
+
+    <body>
+        <metal:content-core fill-slot="content-core">
+
+
+    <tal:main-macro metal:define-macro="main">
+      <div class="alert alert-success" role="alert">Subida exitosa de archivos lotus a plone.</div>
+    
+    </tal:main-macro>
+
+</metal:content-core>
+
+</body>
+</html>

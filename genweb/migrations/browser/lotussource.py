@@ -255,8 +255,8 @@ class LotusSourceSection(object):
             obj_created.reindexObject()
             obj_created.setLayout('folder_tabular_view')
             transaction.commit()
-            obj_created.setModificationDate(datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2))
-            obj_created.reindexObject(idxs=['modified'])
+            parent_folder.setModificationDate(datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours = -2))
+            parent_folder.reindexObject(idxs=['modified'])
         return obj_created 
 
     def get_path(self, path):
