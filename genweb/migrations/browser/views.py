@@ -64,6 +64,8 @@ class LotusView(grok.View):
                     parent.setDefaultPage(o.getId())
                     parent.setModificationDate(o.creation_date)
                     parent.reindexObject(idxs=['modified'])
+                    o.setModificationDate(o.creation_date)
+                    o.reindexObject(idxs=['modified'])
                     self.update_parents(parent,folder_path)
             else:
                 results = catalog(path={'query': brain.getPath(), "depth": 1},portal_type='Document')
