@@ -5,12 +5,9 @@ from Products.CMFPlone.interfaces import IPloneSiteRoot
 from collective.transmogrifier.transmogrifier import configuration_registry
 from collective.transmogrifier.transmogrifier import Transmogrifier
 
-from xml.etree import ElementTree
-from xml.etree.ElementTree import Element
-from xml.etree.ElementTree import SubElement
-
 from unidecode import unidecode
 from plone.app.contenttypes.behaviors.richtext import IRichText
+import transaction
 
 from Products.CMFCore.utils  import  getToolByName 
 from plone.app.textfield.value import RichTextValue
@@ -68,6 +65,16 @@ class LotusView(grok.View):
                     parent.setModificationDate(o.creation_date)
                     parent.reindexObject(idxs=['modified'])
                     self.update_parents(parent,folder_path)
+                    transaction.commit()
+            else:
+                results = catalog(path={'query': brain.getPath(), "depth": 1},portal_type='Document')
+                objs = [b.getObject() for b in results ]
+                for o in objs:
+                    o.setModificationDate(o.creation_date)
+                    o.reindexObject(idxs=['modified'])
+                    transaction.commit()
+            
+
     def update_parents(self,obj,path):
         parent = obj.aq_inner.aq_parent
         if '/'.join(obj.getPhysicalPath()) == path:
@@ -76,6 +83,7 @@ class LotusView(grok.View):
             parent.setModificationDate(obj.creation_date)
             parent.reindexObject(idxs=['modified'])
             self.update_parents(parent,path)
+            transaction.commit()
 
 class ChangeTagView(grok.View):
     grok.name("change_tag")
