@@ -10,8 +10,6 @@ from xml.etree.ElementTree import Element
 from xml.etree.ElementTree import SubElement
 
 from unidecode import unidecode
-import re
-from bs4 import BeautifulSoup
 from plone.app.contenttypes.behaviors.richtext import IRichText
 
 from Products.CMFCore.utils  import  getToolByName 
@@ -102,9 +100,6 @@ class ChangeTagView(grok.View):
                     o.text = IRichText['text'].fromUnicode(body)
                     o.reindexObject()
                     
-
-    
-
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
     grok.name('migration_dashboard')
