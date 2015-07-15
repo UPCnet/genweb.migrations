@@ -10,7 +10,9 @@ from xml.etree.ElementTree import Element
 from xml.etree.ElementTree import SubElement
 
 from unidecode import unidecode
-
+import re
+from bs4 import BeautifulSoup
+from plone.app.contenttypes.behaviors.richtext import IRichText
 
 from Products.CMFCore.utils  import  getToolByName 
 from plone.app.textfield.value import RichTextValue
@@ -67,8 +69,7 @@ class LotusView(grok.View):
                     parent.setDefaultPage(o.getId())
                     parent.setModificationDate(o.creation_date)
                     parent.reindexObject(idxs=['modified'])
-                    self.update_parents(parent,folder_path) 
-
+                    self.update_parents(parent,folder_path)
     def update_parents(self,obj,path):
         parent = obj.aq_inner.aq_parent
         if '/'.join(obj.getPhysicalPath()) == path:
@@ -77,6 +78,32 @@ class LotusView(grok.View):
             parent.setModificationDate(obj.creation_date)
             parent.reindexObject(idxs=['modified'])
             self.update_parents(parent,path)
+
+class ChangeTagView(grok.View):
+    grok.name("change_tag")
+    grok.context(Interface)
+    grok.require('cmf.ManagePortal')
+    grok.template('lotus_migration')
+
+    def update(self):
+        portal = api.portal.get()
+        context = self.context
+        catalog = getToolByName(context, 'portal_catalog')
+        folder_path = '/'.join(context.getPhysicalPath())
+        results = catalog(path={'query': folder_path},portal_type='Folder') 
+        for brain in results:
+                pages = catalog(path={"query": brain.getPath(), "depth": 1},portal_type='Document')
+                objs = [b.getObject() for b in pages ]
+                #import ipdb; ipdb.set_trace()
+                for o in objs:
+                    body = o.text.raw
+                    body = body.replace('<b>','<strong>')
+                    body = body.replace('</b>','</strong>')
+                    o.text = IRichText['text'].fromUnicode(body)
+                    o.reindexObject()
+                    
+
+    
 
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
