@@ -65,14 +65,13 @@ class LotusView(grok.View):
                     parent.setModificationDate(o.creation_date)
                     parent.reindexObject(idxs=['modified'])
                     self.update_parents(parent,folder_path)
-                    transaction.commit()
             else:
                 results = catalog(path={'query': brain.getPath(), "depth": 1},portal_type='Document')
-                objs = [b.getObject() for b in results ]
-                for o in objs:
-                    o.setModificationDate(o.creation_date)
-                    o.reindexObject(idxs=['modified'])
-                    transaction.commit()
+                res_objs = [b.getObject() for b in results ]
+                for ob in res_objs:
+                    ob.setModificationDate(ob.creation_date)
+                    ob.reindexObject(idxs=['modified'])
+        transaction.commit()
             
 
     def update_parents(self,obj,path):
@@ -83,7 +82,6 @@ class LotusView(grok.View):
             parent.setModificationDate(obj.creation_date)
             parent.reindexObject(idxs=['modified'])
             self.update_parents(parent,path)
-            transaction.commit()
 
 class ChangeTagView(grok.View):
     grok.name("change_tag")
@@ -106,7 +104,8 @@ class ChangeTagView(grok.View):
                     body = body.replace('<b>','<strong>')
                     body = body.replace('</b>','</strong>')
                     o.text = IRichText['text'].fromUnicode(body)
-                    o.reindexObject()
+                    o.reindexObject(idxs=['text'])
+                    transaction.commit()
                     
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
