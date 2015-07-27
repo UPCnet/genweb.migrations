@@ -124,10 +124,16 @@ class LotusSourceSection(object):
             response2 = session.get(URL + TRAVERSE_PATH + PATH + ide +'?OpenDocument&ExpandSection=1,10,11,1.1,1.1.2,12,1.2,13,1.3,14,1.4,15,1.5,16,1.6,17,1.7,18,1.8,19,1.9,2,20,21,2.1,2.1.1,2.1.2,22,2.2,23,2.3,24,2.4,25,2.5,26,2.6,27,2.7,28,2.8,29,2.9,3,30,31,3.1,32,3.2,33,3.3,34,3.4,35,4,4.1,4.3,4.4,4.5,5,6,7,8,9', headers=cookie)
             htmlContent = response2.content.decode('iso-8859-1').encode('utf-8')
             #Cambiar dependiendo de la vista del documento, primero vista sencilla, segundo vista con cabecera grande
-            if regex_type =='1':
+            try:
                 tinyContent =   re.search(r'^(.*?)(<script.*/script>)(.*<form.*?>)(.*?<table.*?/table>)(.*?)(<center.*?<hr.*?)<a\s*href="\/upc\/'+NAME_URL +'\.nsf\/\(\$All\)\?OpenView">.*$', htmlContent, re.DOTALL | re.MULTILINE).groups()[4]
-            else:
-                tinyContent = re.search(r'^(.*?)(.*<form.*?>)(.*?<table.*?<table)(.*?/table>)(.*?<table.*?/table>)?(.*?/table>)(.*?)<hr.*$', htmlContent, re.DOTALL | re.MULTILINE).groups()[6]
+            except:
+                try:
+                    tinyContent = re.search(r'^(.*?)(.*<form.*?>)(.*?<table.*?<table)(.*?/table>)(.*?<table.*?/table>)?(.*?/table>)(.*?)<hr.*$', htmlContent, re.DOTALL | re.MULTILINE).groups()[6]
+                except:
+                    try:
+                        tinyContent = re.search(r'^(.*?)(.*<form.*?>)(.*?<table.*?<table)(.*?/table>)(.*?<table.*?/table>)?(.*?/table>)(.*?)</form.*$', htmlContent, re.DOTALL | re.MULTILINE).groups()[6]
+                    except:
+                        pass
             title_subj = self.generateUnusedId(subject)
             objectNote = createContentInContainer(parent, 'Document', title_subj,title=title_subj)
             imatgeSrc = re.findall(r'<img[^>]+src=\"([^\"]+)\"', tinyContent)
