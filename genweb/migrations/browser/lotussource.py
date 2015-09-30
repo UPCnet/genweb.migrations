@@ -45,7 +45,7 @@ class LotusSourceSection(object):
         self.options = options
         self.name = name
         self.context = transmogrifier.context
-        #print(requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS)
+        ##print(requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS)
         requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL'
         session = requests.session()
         session.mount('https://', SslTransportAdapter())
