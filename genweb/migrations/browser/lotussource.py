@@ -30,6 +30,7 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from zope.interface import classProvides, implements
 from transportAdapter import SslTransportAdapter
+import requests.packages.urllib3.util.ssl_
 requests.packages.urllib3.disable_warnings()
 
 
@@ -44,6 +45,8 @@ class LotusSourceSection(object):
         self.options = options
         self.name = name
         self.context = transmogrifier.context
+        #print(requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS)
+        requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL'
         session = requests.session()
         session.mount('https://', SslTransportAdapter())
         session.verify = False
@@ -72,8 +75,9 @@ class LotusSourceSection(object):
             'Desti': URL+TRAVERSE_PATH+PATH1,
             'NomUsuari': '%s' % USER,
         }
+
         session.cookies.update(extra_cookies)
-        response = session.post(LOGIN_URL, params, allow_redirects=True)
+        response = session.post(LOGIN_URL, params, allow_redirects=True, verify=False)
         cookie = {'Cookie': 'HabCookie=1; Desti=' + URL  + PATH + '; RetornTancar=1; NomUsuari=' + USER + ' LtpaToken=' + session.cookies['LtpaToken']}
         response = session.get(MAIN_URL, headers=cookie)
         
