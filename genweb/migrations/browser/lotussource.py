@@ -70,8 +70,10 @@ class LotusSourceSection(object):
         biblio = createContentInContainer(ca, 'Folder', NAME_BD, title=NAME_BD, description=u'Biblioteca de importaciones')
         biblio.setLayout('folder_tabular_view')
         biblio.reindexObject()
-        for count, elem in enumerate(root):
-            self.context.plone_log(str(count))
+        num_files = len(root)
+        for i in range(0, num_files):
+            self.context.plone_log(str(i))
+            elem = root[i]
             attribute = elem.attrib
             ide = attribute['unid']
             categoria_pare = ''
@@ -227,7 +229,7 @@ class LotusSourceSection(object):
                 objectNote.setModificationDate(datetime.strptime(data_creacio, '%m/%d/%Y %I:%M:%S %p') + timedelta(hours=-2))
                 objectNote.reindexObject(idxs=['modified'])
                 transaction.commit()
-        self.context.plone_log('Archivos migrados: ' + str(count))
+        self.context.plone_log('Archivos migrados: ' + str(num_files))
         self.context.plone_log('Migracion Finalizada.')
 
     def create_child(self, parent_folder, path_name, folder_name, autor, data_creacio, data_modif):
