@@ -110,18 +110,13 @@ class CatalogSourceSection(object):
                         text_updated = self.updateCss(text_content)
                         item['text'] = text_updated
 
-                    ppath = item.get('_path', False)
-
-                    if 'anteriors' in ppath or 'anteriores' in ppath or 'previous' in ppath:
-                        continue
-
                     ptype = item.get('_type', False)
                     if ptype == 'Topic':
                         item['_type'] = 'Collection'
                         item['_classname'] = 'Dexterity Item'
-                        #item['query'] = item['criteri']
-                        #item['sort_on'] = item['criteri_sort_on']
-                        #item['sort_reversed'] = item['criteri_sort_reversed']
+                        item['query'] = item['criteri']
+                        item['sort_on'] = item['criteri_sort_on']
+                        item['sort_reversed'] = item['criteri_sort_reversed']
 
                     if ptype == 'FormSaveDataAdapter':
                         sd = unicodedata.normalize('NFKD', item['SavedFormInput']).encode('ascii',errors='ignore')
