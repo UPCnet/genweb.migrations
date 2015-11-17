@@ -110,11 +110,28 @@ class CatalogSourceSection(object):
                         text_updated = self.updateCss(text_content)
                         item['text'] = text_updated
 
+                    ppath = item.get('_path', False)
+
+                    if 'anteriors' in ppath or 'anteriores' in ppath or 'previous' in ppath:
+                        continue
+
                     ptype = item.get('_type', False)
-                    
-                    if ptype == 'FormStringField':
+                    if ptype == 'Topic':
+                        item['_type'] = 'Collection'
+                        item['_classname'] = 'Dexterity Item'
+                        #item['query'] = item['criteri']
+                        #item['sort_on'] = item['criteri_sort_on']
+                        #item['sort_reversed'] = item['criteri_sort_reversed']
+
+                    if ptype == 'FormSaveDataAdapter':
+                        sd = unicodedata.normalize('NFKD', item['SavedFormInput']).encode('ascii',errors='ignore')
+                        item['SavedFormInput'] = sd
+
+                    if (ptype == 'FormStringField' or ptype == 'FormSelectionField'
+                        or ptype == 'FieldsetFolder' or ptype =='FormTextField'
+                        or ptype == 'FormMultiSelectionField'):
                         desc = unicodedata.normalize('NFKD', item['description']).encode('ascii',errors='ignore')
-                        item['description'] = desc                        
+                        item['description'] = desc
 
                     # Banners create correct attributes
                     if ptype == 'Banner' or ptype == 'Logos_Footer':
@@ -126,7 +143,7 @@ class CatalogSourceSection(object):
                             # to take image
                             item['_datafield_image'] = item['_datafield_Imatge']
 
-                    # Collage sub-items fetcher                         
+                    # Collage sub-items fetcher
                     if ptype == 'Collage':
                         collageRows = []
                         collageColumns = []
@@ -137,7 +154,7 @@ class CatalogSourceSection(object):
                                 del item[key]
                             if key.startswith('_colCollage'):
                                 collageColumns.append(item[key])
-                                del item[key]                             
+                                del item[key]
                             if key.startswith('_aliasCollage') or key.startswith('_finalObjectCollage'):
                                 collageObjects.append(item[key])
                                 del item[key]
@@ -159,7 +176,7 @@ class CatalogSourceSection(object):
                             component['_path'] = component['_path'][self.site_path_length:]
                             component['_auth_info'] = (self.remote_username, self.remote_password)
                             component['_site_path_length'] = self.site_path_length
-                            yield component                         
+                            yield component
 
                     else:
                         yield item
