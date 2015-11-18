@@ -111,13 +111,12 @@ class CatalogSourceSection(object):
                         item['text'] = text_updated
 
                     ptype = item.get('_type', False)
+                    
                     if ptype == 'Topic':
                         item['_type'] = 'Collection'
                         item['_classname'] = 'Dexterity Item'
-                        item['query'] = item['criteri']
-                        item['sort_on'] = item['criteri_sort_on']
-                        item['sort_reversed'] = item['criteri_sort_reversed']
 
+                    # Create correct forms
                     if ptype == 'FormSaveDataAdapter':
                         sd = unicodedata.normalize('NFKD', item['SavedFormInput']).encode('ascii',errors='ignore')
                         item['SavedFormInput'] = sd
