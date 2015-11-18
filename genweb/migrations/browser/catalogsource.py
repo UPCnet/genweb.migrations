@@ -111,7 +111,12 @@ class CatalogSourceSection(object):
                         item['text'] = text_updated
 
                     ptype = item.get('_type', False)
-                    
+
+                    # Create filenames without accent
+                    if ptype == 'File':
+                        filename = unicodedata.normalize('NFKD', item['_datafield_file']['filename']).encode('ascii',errors='ignore')
+                        item['_datafield_file']['filename'] = filename
+
                     if ptype == 'Topic':
                         item['_type'] = 'Collection'
                         item['_classname'] = 'Dexterity Item'
