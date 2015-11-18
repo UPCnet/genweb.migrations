@@ -294,7 +294,7 @@ class LeftOvers(object):
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(str(item[pathkey]).lstrip('/'), None)
-
+            
             if obj is None:
                 # path doesn't exist
                 yield item; continue
@@ -317,6 +317,10 @@ class LeftOvers(object):
             if item.get('_local_roles_block', False):
                 if item['_local_roles_block']:
                     obj.__ac_local_roles_block__ = True
+
+            # Tags
+            if item.get('subject', False):
+                obj.subject = item['subject']
 
             if item.get('finalObjectLayout',False):
                 manager = IDynamicViewManager(obj)
