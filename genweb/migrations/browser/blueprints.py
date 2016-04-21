@@ -299,6 +299,10 @@ class LeftOvers(object):
                 # path doesn't exist
                 yield item; continue
 
+            # Table contents
+            if item.get('tableContents', False):
+                obj.table_of_contents = item.get('tableContents')
+
             # Exclude from nav
             if item.get('excludeFromNav', False):
                 obj.exclude_from_nav = item.get('excludeFromNav')

@@ -123,6 +123,8 @@ class CatalogSourceSection(object):
 
                     # Create correct forms
                     if ptype == 'FormSaveDataAdapter':
+                        if len(item['SavedFormInput']) == 0:
+                            continue
                         sd = unicodedata.normalize('NFKD', item['SavedFormInput']).encode('ascii',errors='ignore')
                         item['SavedFormInput'] = sd
 
