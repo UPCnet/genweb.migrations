@@ -316,6 +316,7 @@ class LeftOvers(object):
                 item['_layout'] = str(item['_layout'])
             if item.get('_defaultpage', False):
                 item['_defaultpage'] = str(item['_defaultpage'])
+                obj.default_view = str(item['_defaultpage'])
 
             # Local roles inherit
             if item.get('_local_roles_block', False):
