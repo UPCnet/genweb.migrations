@@ -59,9 +59,14 @@
         component=".blueprints.OrderSection"
         name="genweb.migrations.order"
         />
+
     <utility
         component=".lotussource.LotusSourceSection"
         name="genweb.migrations.lotussource"
+        />
+    <utility
+        component=".jsonsource.JSONSourceSection"
+        name="genweb.migrations.jsonsource"
         />
 
     <transmogrifier:registerConfig
@@ -104,6 +109,12 @@
         name="genweb.migrations.common"
         title="Dashboard config"
         configuration="common.cfg"
+        />
+
+    <transmogrifier:registerConfig
+        name="genweb.migrations.jsonimport"
+        title="Migration configuration for importing JSON"
+        configuration="jsonimport.cfg"
         />
 
 </configure>
