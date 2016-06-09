@@ -294,7 +294,7 @@ class LeftOvers(object):
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(str(item[pathkey]).lstrip('/'), None)
-            
+
             if obj is None:
                 # path doesn't exist
                 yield item; continue
@@ -330,6 +330,14 @@ class LeftOvers(object):
             if item.get('finalObjectLayout',False):
                 manager = IDynamicViewManager(obj)
                 finalObjectLayout = manager.setLayout(item['finalObjectLayout'])
+
+            # Form
+            if item['_type'] == u'FormFolder':
+                obj.removeFieldFromForm('mailer')
+                obj.removeFieldFromForm('replyto')
+                obj.removeFieldFromForm('topic')
+                obj.removeFieldFromForm('comments')
+                obj.removeFieldFromForm('thank-you')
 
             # Rebuild CollageAlias AT reference
             if item.get('_type', False):

@@ -111,6 +111,9 @@ class CatalogSourceSection(object):
                         item['text'] = text_updated
 
                     ptype = item.get('_type', False)
+                    ppath = item.get('_path', False)
+                    if '/seu-electoral/eleccions-anteriors/eleccions-electroniques/2010/' in ppath:
+                        continue
 
                     # Create filenames without accent
                     if ptype == 'File':
