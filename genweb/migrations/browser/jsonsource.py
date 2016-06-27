@@ -9,7 +9,7 @@ from zope.component import getUtility
 from plone.i18n.normalizer.interfaces import IURLNormalizer
 
 import os
-import simplejson
+import json as simplejson
 import urllib
 
 DATAFIELD = '_datafield_'

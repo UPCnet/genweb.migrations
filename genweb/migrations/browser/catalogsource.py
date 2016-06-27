@@ -1,7 +1,7 @@
 import base64
 import urllib
 import urllib2
-import simplejson
+import json as simplejson
 import unicodedata
 from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
