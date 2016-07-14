@@ -117,6 +117,7 @@ class CatalogSourceSection(object):
 
                     # Create filenames without accent
                     if ptype == 'File':
+                        item['EffectiveDate'] = item['effectiveDate']
                         filename = unicodedata.normalize('NFKD', item['_datafield_file']['filename']).encode('ascii',errors='ignore')
                         item['_datafield_file']['filename'] = filename
 
