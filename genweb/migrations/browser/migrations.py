@@ -41,8 +41,6 @@ class MigrationTest(grok.View):
     grok.name('migration_test')
 
     def render(self):
-        from plone.protect.interfaces import IDisableCSRFProtection
-        alsoProvides(self.request, IDisableCSRFProtection)
         portal = api.portal.get()
         transmogrifier = Transmogrifier(portal)
         transmogrifier('genweb.migrations.test')
