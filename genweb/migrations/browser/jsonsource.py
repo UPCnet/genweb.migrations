@@ -81,8 +81,9 @@ class JSONSourceSection(object):
             yield item
 
         for item in self.items:
+            normalized_item = self.normalize(item)
             if '_path' in item:
-                self.storage.append(item['_path'])
+                self.storage.append(normalized_item['_path'])
             else:
-                self.storage.append(item)
-            yield self.normalize(item)
+                self.storage.append(normalized_item)
+            yield normalized_item
