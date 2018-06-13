@@ -20,7 +20,6 @@ from plone.dexterity.utils import iterSchemata
 from zope.schema import getFieldsInOrder
 from genweb.migrations.interfaces import IDeserializer
 from datetime import datetime
-from Products.Collage.interfaces import IDynamicViewManager
 
 import base64
 import pprint
@@ -326,30 +325,6 @@ class LeftOvers(object):
             # Tags
             if item.get('subject', False):
                 obj.subject = item['subject']
-
-            if item.get('finalObjectLayout',False):
-                manager = IDynamicViewManager(obj)
-                finalObjectLayout = manager.setLayout(item['finalObjectLayout'])
-
-            # Form
-            if item['_type'] == u'FormFolder':
-                obj.removeFieldFromForm('mailer')
-                obj.removeFieldFromForm('replyto')
-                obj.removeFieldFromForm('topic')
-                obj.removeFieldFromForm('comments')
-                obj.removeFieldFromForm('thank-you')
-
-            # Rebuild CollageAlias AT reference
-            if item.get('_type', False):
-                if item['_type'] == u'CollageAlias':
-                    if item['_atrefs'].get('Collage_aliasedItem', False):
-                        try:
-                            ref_path = item['language'] + item['_atrefs']['Collage_aliasedItem'][0][item['_site_path_length']:]
-                            ref_obj = self.context.unrestrictedTraverse(str(ref_path))
-                            ref_uuid = IUUID(ref_obj)
-                            obj.set_target(ref_uuid)
-                        except:
-                            pass
 
             # Put creation and modification time on its place
             if item.get('creation_date', False):

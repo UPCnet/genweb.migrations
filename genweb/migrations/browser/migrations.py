@@ -1,5 +1,6 @@
 from five import grok
 from plone import api
+from zope.interface import Interface
 from Products.CMFPlone.interfaces import IPloneSiteRoot
 
 from collective.transmogrifier.transmogrifier import Transmogrifier
@@ -35,6 +36,15 @@ class intranetUPCnet(grok.View):
         transmogrifier('intranetupcnet')
         return 'Done'
 
+
+class ComunitatsImport(grok.View):
+    grok.context(Interface)
+    grok.name('comunitats_import')
+
+    def render(self):
+        portal = api.portal.get()
+        transmogrifier = Transmogrifier(portal)
+        transmogrifier('genweb.migrations.comunitatsimport')
 
 class MigrationTest(grok.View):
     grok.context(IPloneSiteRoot)

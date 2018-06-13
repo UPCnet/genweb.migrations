@@ -8,7 +8,6 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.jsonmigrator import logger
 from zope.annotation.interfaces import IAnnotations
-from Products.Collage.utilities import generateNewId
 
 
 import requests
@@ -104,85 +103,10 @@ class CatalogSourceSection(object):
                     item['_auth_info'] = (self.remote_username, self.remote_password)
                     item['_site_path_length'] = self.site_path_length
 
-                    # Update css class to GW4
-                    text_content = ptype = item.get('text', '')
-                    if text_content != '':
-                        text_updated = self.updateCss(text_content)
-                        item['text'] = text_updated
-
                     ptype = item.get('_type', False)
                     ppath = item.get('_path', False)
 
-                    # Create filenames without accent
-                    if ptype == 'File':
-                        item['EffectiveDate'] = item['effectiveDate']
-                        filename = unicodedata.normalize('NFKD', item['_datafield_file']['filename']).encode('ascii',errors='ignore')
-                        item['_datafield_file']['filename'] = filename
-
-                    if ptype == 'Topic':
-                        item['_type'] = 'Collection'
-                        item['_classname'] = 'Dexterity Item'
-
-                    # Create correct forms
-                    if ptype == 'FormSaveDataAdapter':
-                        if len(item['SavedFormInput']) == 0:
-                            continue
-                        sd = unicodedata.normalize('NFKD', item['SavedFormInput']).encode('ascii',errors='ignore')
-                        item['SavedFormInput'] = sd
-
-                    if (ptype == 'FormStringField' or ptype == 'FormSelectionField'
-                        or ptype == 'FieldsetFolder' or ptype =='FormTextField'
-                        or ptype == 'FormMultiSelectionField'):
-                        desc = unicodedata.normalize('NFKD', item['description']).encode('ascii',errors='ignore')
-                        item['description'] = desc
-
-                    # Banners create correct attributes
-                    if ptype == 'Banner' or ptype == 'Logos_Footer':
-                        item['remoteUrl'] = item['URLdesti']
-                        item['open_link_in_new_window'] = item['Obrirennovafinestra']
-
-                        if '_datafield_Imatge' in item:
-                            imagen = item['_datafield_Imatge']
-                            # to take image
-                            item['_datafield_image'] = item['_datafield_Imatge']
-
-                    # Collage sub-items fetcher
-                    if ptype == 'Collage':
-                        collageRows = []
-                        collageColumns = []
-                        collageObjects = []
-                        for key in item.keys():
-                            if key.startswith('_rowCollage'):
-                                collageRows.append(item[key])
-                                del item[key]
-                            if key.startswith('_colCollage'):
-                                collageColumns.append(item[key])
-                                del item[key]
-                            if key.startswith('_aliasCollage') or key.startswith('_finalObjectCollage'):
-                                collageObjects.append(item[key])
-                                del item[key]
-                        # Yield the main Collage
-                        yield item
-
-                        # Yield the Collage components, in order (because the parent should exist before!)
-                        for component in collageRows:
-                            component['_path'] = component['_path'][self.site_path_length:]
-                            component['_auth_info'] = (self.remote_username, self.remote_password)
-                            component['_site_path_length'] = self.site_path_length
-                            yield component
-                        for component in collageColumns:
-                            component['_path'] = component['_path'][self.site_path_length:]
-                            component['_auth_info'] = (self.remote_username, self.remote_password)
-                            component['_site_path_length'] = self.site_path_length
-                            yield component
-                        for component in collageObjects:
-                            component['_path'] = component['_path'][self.site_path_length:]
-                            component['_auth_info'] = (self.remote_username, self.remote_password)
-                            component['_site_path_length'] = self.site_path_length
-                            yield component
-
-                    else:
-                        yield item
+                    yield item
 
     def get_remote_item(self, path):
         item_url = '%s%s/get_item' % (self.remote_url, urllib.quote(path))
@@ -203,15 +127,3 @@ class CatalogSourceSection(object):
             self.errored.append(path)
             return None
         return item
-
-    def updateCss(self,text):
-        text = text.replace("colSupContenidor","row")
-        text = text.replace("colSupDreta","span4 pull-right")
-        text = text.replace("colSupEsq","span8")
-        text = text.replace("caixaPortlet","box")
-        text = text.replace("llistatDestacat","list list-highlighted")
-        text = text.replace("mceItemTable","table table-bordered table-hover")
-        text = text.replace("align_left","image-left")
-        text = text.replace("align_right","image-right")
-        text = text.replace("invisible","")
-        return text

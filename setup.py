@@ -29,9 +29,9 @@ setup(name='genweb.migrations',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'requests',
           'five.grok',
           'transmogrify.dexterity',
-          'quintagroup.transmogrifier',
           'collective.jsonmigrator',
           'plone.api'
       ],
