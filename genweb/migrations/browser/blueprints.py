@@ -314,8 +314,7 @@ class LeftOvers(object):
             if item.get('_layout', False):
                 item['_layout'] = str(item['_layout'])
             if item.get('_defaultpage', False):
-                item['_defaultpage'] = str(item['_defaultpage'])
-                obj.default_view = str(item['_defaultpage'])
+                obj.setDefaultPage(str(item['_defaultpage']))
 
             # Local roles inherit
             if item.get('_local_roles_block', False):
@@ -332,6 +331,7 @@ class LeftOvers(object):
                     obj.creation_date = datetime.strptime(item.get('creation_date'), '%Y-%m-%d %H:%M')
                 else:
                     obj.creation_date = DateTime(item.get('creation_date'))
+
             if item.get('modification_date', False):
                 if IDexterityContent.providedBy(item):
                     obj.modification_date = datetime.strptime(item.get('modification_date'), '%Y-%m-%d %H:%M')

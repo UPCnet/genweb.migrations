@@ -9,12 +9,11 @@ from unidecode import unidecode
 from plone.app.contenttypes.behaviors.richtext import IRichText
 import transaction
 
-from Products.CMFCore.utils  import  getToolByName 
+from Products.CMFCore.utils  import  getToolByName
 from plone.app.textfield.value import RichTextValue
-from Products.CMFPlone.interfaces import IBrowserDefault
 
 from Products.CMFPlone.utils import safe_unicode
-from Acquisition import aq_inner, aq_parent 
+from Acquisition import aq_inner, aq_parent
 from zope.interface import Interface
 
 
@@ -53,7 +52,7 @@ class LotusView(grok.View):
         context = self.context
         catalog = getToolByName(context, 'portal_catalog')
         folder_path = '/'.join(context.getPhysicalPath())
-        results = catalog(path={'query': folder_path},portal_type='Folder') 
+        results = catalog(path={'query': folder_path},portal_type='Folder')
         for brain in results:
             items = len(catalog(path={"query": brain.getPath(), "depth": 1},portal_type='Folder'))
             if items == 0:
@@ -74,7 +73,7 @@ class LotusView(grok.View):
                     ob.setModificationDate(ob.creation_date)
                     ob.reindexObject(idxs=['modified'])
         transaction.commit()
-            
+
 
     def update_parents(self,obj,path):
         parent = obj.aq_inner.aq_parent
@@ -96,7 +95,7 @@ class ChangeTagView(grok.View):
         context = self.context
         catalog = getToolByName(context, 'portal_catalog')
         folder_path = '/'.join(context.getPhysicalPath())
-        results = catalog(path={'query': folder_path},portal_type='Folder') 
+        results = catalog(path={'query': folder_path},portal_type='Folder')
         for brain in results:
                 pages = catalog(path={"query": brain.getPath(), "depth": 1},portal_type='Document')
                 objs = [b.getObject() for b in pages ]
@@ -108,7 +107,7 @@ class ChangeTagView(grok.View):
                     o.text = IRichText['text'].fromUnicode(body)
                     o.reindexObject(idxs=['text'])
                     transaction.commit()
-                    
+
 class MigrationDashboard(grok.View):
     grok.context(IPloneSiteRoot)
     grok.name('migration_dashboard')
@@ -133,5 +132,3 @@ class MigrationDashboard(grok.View):
         portal = api.portal.get()
         transmogrifier = Transmogrifier(portal)
         transmogrifier('genweb.migrations.dashboard')
-
-
