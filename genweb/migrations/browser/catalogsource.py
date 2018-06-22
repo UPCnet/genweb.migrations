@@ -8,7 +8,7 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.jsonmigrator import logger
 from zope.annotation.interfaces import IAnnotations
-from Products.Collage.utilities import generateNewId
+# from Products.Collage.utilities import generateNewId
 
 
 import requests

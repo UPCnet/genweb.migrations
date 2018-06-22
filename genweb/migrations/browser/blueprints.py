@@ -20,7 +20,7 @@ from plone.dexterity.utils import iterSchemata
 from zope.schema import getFieldsInOrder
 from genweb.migrations.interfaces import IDeserializer
 from datetime import datetime
-from Products.Collage.interfaces import IDynamicViewManager
+# from Products.Collage.interfaces import IDynamicViewManager
 
 import base64
 import pprint
