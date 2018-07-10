@@ -6,9 +6,10 @@ from zope.interface import implements
 from zope.schema.interfaces import IDatetime
 from plone.app.event.base import default_timezone
 from transmogrify.dexterity.interfaces import IDeserializer
+from transmogrify.dexterity.converters import DatetimeDeserializer
 
 
-class DatetimeDeserializer(object):
+class MyDatetimeDeserializer(DatetimeDeserializer):
     implements(IDeserializer)
     adapts(IDatetime)
 
