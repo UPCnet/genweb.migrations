@@ -1,11 +1,10 @@
-from five import grok
-from plone import api
-from zope.interface import Interface
-from Products.CMFPlone.interfaces import IPloneSiteRoot
+import pkg_resources
 
 from collective.transmogrifier.transmogrifier import Transmogrifier
-from zope.interface import alsoProvides
-import pkg_resources
+from five import grok
+from plone import api
+from Products.CMFPlone.interfaces import IPloneSiteRoot
+from zope.interface import Interface, alsoProvides
 
 try:
     pkg_resources.get_distribution('plone4.csrffixes')
@@ -42,6 +41,8 @@ class ComunitatsImport(grok.View):
     grok.name('comunitats_import')
 
     def render(self):
+        from plone.protect.interfaces import IDisableCSRFProtection
+        alsoProvides(self.request, IDisableCSRFProtection)
         portal = api.portal.get()
         transmogrifier = Transmogrifier(portal)
         transmogrifier('genweb.migrations.comunitatsimport')

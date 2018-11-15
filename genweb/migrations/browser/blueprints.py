@@ -1,32 +1,27 @@
-from Acquisition import aq_base
-from AccessControl.interfaces import IRoleManager
+import base64
+import datetime
+import logging
+import pprint
 from copy import deepcopy
-from zope.interface import implements
-from zope.interface import classProvides
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.utils import Matcher
-from collective.transmogrifier.utils import defaultKeys
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.interfaces import IBaseObject
-from DateTime import DateTime
-from plone.uuid.interfaces import IUUID
-from collective.transmogrifier.utils import defaultMatcher
-from zope.app.container.contained import notifyContainerModified
-
-from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.utils import iterSchemata
-
-from zope.schema import getFieldsInOrder
-from genweb.migrations.interfaces import IDeserializer
 from datetime import datetime
 
-import base64
-import pprint
-
-import logging
-
 import pkg_resources
+
+from AccessControl.interfaces import IRoleManager
+from Acquisition import aq_base
+from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from collective.transmogrifier.utils import (Matcher, defaultKeys,
+                                             defaultMatcher)
+from DateTime import DateTime
+from genweb.migrations.interfaces import IDeserializer
+from plone.dexterity.interfaces import IDexterityContent
+from plone.dexterity.utils import iterSchemata
+from plone.uuid.interfaces import IUUID
+from Products.Archetypes.interfaces import IBaseObject
+from Products.CMFCore.utils import getToolByName
+from zope.app.container.contained import notifyContainerModified
+from zope.interface import classProvides, implements
+from zope.schema import getFieldsInOrder
 
 try:
     pkg_resources.get_distribution('plone.app.multilingual')
@@ -298,6 +293,17 @@ class LeftOvers(object):
                 # path doesn't exist
                 yield item; continue
 
+            #Event start & end
+            # if item.get('start', False):
+            #     date_with_tz = item['start']
+            #     date_str = date_with_tz[:-6]
+            #     obj.start = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
+            #
+            # if item.get('end', False):
+            #     date_with_tz = item['end']
+            #     date_str = date_with_tz[:-6]
+            #     obj.end = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
+
             # Table contents
             if item.get('tableContents', False):
                 obj.table_of_contents = item.get('tableContents')
@@ -313,8 +319,11 @@ class LeftOvers(object):
             # Layout and DefaultPage from unicode to str
             if item.get('_layout', False):
                 item['_layout'] = str(item['_layout'])
+                obj.layout = str(item['_layout'])
+
             if item.get('_defaultpage', False):
                 obj.setDefaultPage(str(item['_defaultpage']))
+                obj.default_view = str(item['_defaultpage'])
 
             # Local roles inherit
             if item.get('_local_roles_block', False):
