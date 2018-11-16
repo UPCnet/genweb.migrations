@@ -6,6 +6,7 @@ from copy import deepcopy
 from datetime import datetime
 
 import pkg_resources
+import pytz
 
 from AccessControl.interfaces import IRoleManager
 from Acquisition import aq_base
@@ -294,15 +295,20 @@ class LeftOvers(object):
                 yield item; continue
 
             #Event start & end
-            # if item.get('start', False):
-            #     date_with_tz = item['start']
-            #     date_str = date_with_tz[:-6]
-            #     obj.start = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
-            #
-            # if item.get('end', False):
-            #     date_with_tz = item['end']
-            #     date_str = date_with_tz[:-6]
-            #     obj.end = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
+            if item.get('start', False):
+                tz = pytz.timezone('Europe/Madrid')
+                date_with_tz = item['start']
+                date_str = date_with_tz[:-6]
+                dt = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
+                obj.start = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, tzinfo=tz)
+
+            if item.get('end', False):
+                tz = pytz.timezone('Europe/Madrid')
+                date_with_tz = item['end']
+                date_str = date_with_tz[:-6]
+                dt = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
+                obj.end = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, tzinfo=tz)
+
 
             # Table contents
             if item.get('tableContents', False):
