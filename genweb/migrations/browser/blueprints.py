@@ -353,6 +353,19 @@ class LeftOvers(object):
                 else:
                     obj.modification_date = DateTime(item.get('modification_date'))
 
+            if item.get('effective', False):
+                if IDexterityContent.providedBy(item):
+                    obj.effective_date = datetime.strptime(item.get('effective'), '%Y-%m-%d %H:%M')
+                else:
+                    obj.effective_date = DateTime(item.get('effective'))
+
+            if item.get('expires', False):
+                if IDexterityContent.providedBy(item):
+                    obj.expiration_date = datetime.strptime(item.get('expires'), '%Y-%m-%d %H:%M')
+                else:
+                    obj.expiration_date = DateTime(item.get('expires'))
+
+
             yield item
 
 
