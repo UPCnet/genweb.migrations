@@ -15,11 +15,11 @@ from collective.transmogrifier.utils import (Matcher, defaultKeys,
                                              defaultMatcher)
 from DateTime import DateTime
 from genweb.migrations.interfaces import IDeserializer
+from plone import api
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.utils import iterSchemata
 from plone.uuid.interfaces import IUUID
 from Products.Archetypes.interfaces import IBaseObject
-from Products.CMFCore.utils import getToolByName
 from zope.app.container.contained import notifyContainerModified
 from zope.interface import classProvides, implements
 from zope.schema import getFieldsInOrder
@@ -147,7 +147,7 @@ class WorkflowHistory(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        self.wftool = getToolByName(self.context, 'portal_workflow')
+        self.wftool = api.portal.get_tool(name='portal_workflow')
 
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()

@@ -6,7 +6,6 @@ from unidecode import unidecode
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobImage, NamedBlobFile
 import re
-from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import _createObjectByType
 from plone.app.textfield.value import RichTextValue
 from datetime import datetime, timedelta
@@ -164,7 +163,7 @@ class LotusSourceSection(object):
                         extension = fich.split('.')[-1].lower()
                         nom_fich = '.'.join(fich.split('.')[:-1])
                         file_name = nom_fich.decode('iso-8859-1').encode('utf-8')
-                        normalizedName = getToolByName(self.context, 'plone_utils').normalizeString(file_name)
+                        normalizedName = api.portal.get_tool(name='plone_utils').normalizeString(file_name)
                         normalizedName = self.calculaNom(contents, normalizedName)
                         attch_name = unicode(normalizedName + '.' + extension)
                         file_obj = api.content.create(parent, 'File', id=attch_name, title=attch_name, safe_id=True)
@@ -233,7 +232,7 @@ class LotusSourceSection(object):
         self.context.plone_log('Migracion Finalizada.')
 
     def create_child(self, parent_folder, path_name, folder_name, autor, data_creacio, data_modif):
-        normalizedd = getToolByName(self.context, 'plone_utils').normalizeString(path_name)
+        normalizedd = api.portal.get_tool(name='plone_utils').normalizeString(path_name)
         try:
             obj_created = parent_folder[normalizedd]
         except:
@@ -269,7 +268,7 @@ class LotusSourceSection(object):
     def generateUnusedId(self, title):
         """
         """
-        plone_utils = getToolByName(self.context, 'plone_utils')
+        plone_utils = api.portal.get_tool(name='plone_utils')
         id = plone_utils.normalizeString(title)
         if id in self.context.contentIds():
             number = 2

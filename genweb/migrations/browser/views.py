@@ -9,7 +9,6 @@ from unidecode import unidecode
 from plone.app.contenttypes.behaviors.richtext import IRichText
 import transaction
 
-from Products.CMFCore.utils  import  getToolByName
 from plone.app.textfield.value import RichTextValue
 
 from Products.CMFPlone.utils import safe_unicode
@@ -50,7 +49,7 @@ class LotusView(grok.View):
     def update(self):
         portal = api.portal.get()
         context = self.context
-        catalog = getToolByName(context, 'portal_catalog')
+        catalog = api.portal.get_tool(name='portal_catalog')
         folder_path = '/'.join(context.getPhysicalPath())
         results = catalog(path={'query': folder_path},portal_type='Folder')
         for brain in results:
@@ -93,7 +92,7 @@ class ChangeTagView(grok.View):
     def update(self):
         portal = api.portal.get()
         context = self.context
-        catalog = getToolByName(context, 'portal_catalog')
+        catalog = api.portal.get_tool(name='portal_catalog')
         folder_path = '/'.join(context.getPhysicalPath())
         results = catalog(path={'query': folder_path},portal_type='Folder')
         for brain in results:
